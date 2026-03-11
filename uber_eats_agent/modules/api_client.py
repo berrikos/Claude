@@ -6,7 +6,8 @@ from typing import Any, Optional
 import httpx
 
 from uber_eats_agent.config import (
-    UBER_EATS_API_BASE,
+    UBER_EATS_API_BASE_V1,
+    UBER_EATS_API_BASE_V2,
     UBER_EATS_AUTH_URL,
     UBER_EATS_CLIENT_ID,
     UBER_EATS_CLIENT_SECRET,
@@ -41,10 +42,13 @@ class UberEatsClient:
         self.client_secret = client_secret or UBER_EATS_CLIENT_SECRET
         self._access_token: Optional[str] = None
         self._token_expires_at: float = 0
-        self._http = httpx.Client(timeout=30.0)
+        self._http = httpx.Client(
+            timeout=30.0,
+            headers={"Accept-Encoding": "gzip"},
+        )
 
     def _ensure_authenticated(self) -> None:
-        """Obtain or refresh the OAuth2 access token."""
+        """Obtain or refresh the OAuth2 access token (valid for 30 days)."""
         if self._access_token and time.time() < self._token_expires_at - 60:
             return
 
@@ -70,19 +74,18 @@ class UberEatsClient:
 
         data = resp.json()
         self._access_token = data["access_token"]
-        self._token_expires_at = time.time() + data.get("expires_in", 3600)
+        self._token_expires_at = time.time() + data.get("expires_in", 2592000)
 
     def _request(
         self,
         method: str,
-        path: str,
+        url: str,
         params: Optional[dict] = None,
         json_body: Optional[dict] = None,
     ) -> Any:
         """Make an authenticated request to the Uber Eats API."""
         self._ensure_authenticated()
 
-        url = f"{UBER_EATS_API_BASE}{path}"
         resp = self._http.request(
             method,
             url,
@@ -94,60 +97,110 @@ class UberEatsClient:
         if resp.status_code == 429:
             retry_after = int(resp.headers.get("Retry-After", "5"))
             time.sleep(retry_after)
-            return self._request(method, path, params, json_body)
+            return self._request(method, url, params, json_body)
 
         if resp.status_code >= 400:
             raise UberEatsAPIError(resp.status_code, resp.text)
 
         return resp.json()
 
-    # ── Stores ──────────────────────────────────────────────────────
+    # ── Stores (v1) ─────────────────────────────────────────────────
 
     def get_stores(self) -> list[Store]:
-        """Fetch all stores owned by the authenticated merchant."""
-        data = self._request("GET", "/stores")
-        stores = []
-        for s in data.get("stores", data if isinstance(data, list) else []):
-            stores.append(
-                Store(
-                    id=s.get("store_id", s.get("uuid", "")),
-                    name=s.get("name", "Unknown"),
-                    address=s.get("address", {}).get("address1", ""),
-                    status=s.get("status", ""),
-                    is_online=s.get("is_online", False),
-                    raw_data=s,
-                )
-            )
-        return stores
+        """Fetch all stores owned by the authenticated merchant.
 
-    # ── Menu ────────────────────────────────────────────────────────
+        Uses cursor-based pagination (next_key) to handle large store counts.
+        """
+        all_stores: list[Store] = []
+        next_key: Optional[str] = None
+
+        while True:
+            params: dict[str, Any] = {}
+            if next_key:
+                params["next_key"] = next_key
+
+            data = self._request("GET", f"{UBER_EATS_API_BASE_V1}/stores", params=params)
+
+            stores_list = data.get("stores", data if isinstance(data, list) else [])
+            for s in stores_list:
+                location = s.get("location", {})
+                all_stores.append(
+                    Store(
+                        id=s.get("store_id", s.get("uuid", "")),
+                        name=s.get("name", "Unknown"),
+                        address=location.get("address", location.get("address1", "")),
+                        status=s.get("status", ""),
+                        is_online=s.get("is_online", False),
+                        raw_data=s,
+                    )
+                )
+
+            next_key = data.get("next_key")
+            if not next_key:
+                break
+
+        return all_stores
+
+    # ── Menu (v2) ───────────────────────────────────────────────────
 
     def get_menu(self, store_id: str) -> list[MenuCategory]:
-        """Fetch the full menu for a store."""
-        data = self._request("GET", f"/stores/{store_id}/menus")
+        """Fetch the full menu for a store using the v2 menu endpoint."""
+        data = self._request("GET", f"{UBER_EATS_API_BASE_V2}/stores/{store_id}/menus")
 
         categories: list[MenuCategory] = []
         menus = data.get("menus", data if isinstance(data, list) else [data])
 
         for menu in menus:
-            for cat in menu.get("categories", menu.get("category_entities", {}).values() if isinstance(menu, dict) else []):
-                if isinstance(cat, str):
-                    continue
-                cat_obj = MenuCategory(
-                    id=cat.get("id", cat.get("uuid", "")),
-                    title=cat.get("title", cat.get("name", "Uncategorized")),
-                )
-                for item in cat.get("items", cat.get("entities", [])):
-                    if isinstance(item, str):
+            # v2 menus use entity-based structure with category_ids referencing
+            # category_entities, which in turn reference item_entities
+            category_entities = menu.get("category_entities", {})
+            item_entities = menu.get("item_entities", {})
+            modifier_group_entities = menu.get("modifier_group_entities", {})
+
+            # If entity-based structure
+            if category_entities:
+                for cat_id, cat in category_entities.items():
+                    cat_obj = MenuCategory(
+                        id=cat_id,
+                        title=cat.get("title", cat.get("name", "Uncategorized")),
+                    )
+                    for item_id in cat.get("item_ids", []):
+                        item_data = item_entities.get(item_id, {})
+                        if not item_data:
+                            continue
+                        menu_item = self._parse_menu_item(
+                            item_data, item_id, cat_obj.id, cat_obj.title,
+                            modifier_group_entities,
+                        )
+                        cat_obj.items.append(menu_item)
+                    categories.append(cat_obj)
+            else:
+                # Fallback for flat category/item structure
+                for cat in menu.get("categories", []):
+                    if isinstance(cat, str):
                         continue
-                    menu_item = self._parse_menu_item(item, cat_obj.id, cat_obj.title)
-                    cat_obj.items.append(menu_item)
-                categories.append(cat_obj)
+                    cat_obj = MenuCategory(
+                        id=cat.get("id", cat.get("uuid", "")),
+                        title=cat.get("title", cat.get("name", "Uncategorized")),
+                    )
+                    for item in cat.get("items", []):
+                        if isinstance(item, str):
+                            continue
+                        menu_item = self._parse_menu_item(
+                            item, item.get("id", ""), cat_obj.id, cat_obj.title, {},
+                        )
+                        cat_obj.items.append(menu_item)
+                    categories.append(cat_obj)
 
         return categories
 
     def _parse_menu_item(
-        self, item: dict, category_id: str, category_name: str
+        self,
+        item: dict,
+        item_id: str,
+        category_id: str,
+        category_name: str,
+        modifier_group_entities: dict,
     ) -> MenuItem:
         price_info = item.get("price_info", item.get("price", {}))
         if isinstance(price_info, dict):
@@ -157,84 +210,159 @@ class UberEatsClient:
         else:
             price = 0.0
 
+        # Parse modifier groups — in v2, items reference modifier_group_ids
         modifier_groups = []
-        for mg in item.get("modifier_groups", item.get("modifier_group_ids", {}).values() if isinstance(item.get("modifier_group_ids"), dict) else []):
-            if isinstance(mg, str):
-                continue
-            group = ModifierGroup(
-                id=mg.get("id", mg.get("uuid", "")),
-                title=mg.get("title", mg.get("name", "")),
-                min_selection=mg.get("minimum_selection", mg.get("min_permitted", 0)),
-                max_selection=mg.get("maximum_selection", mg.get("max_permitted", 1)),
-            )
-            for mod in mg.get("modifiers", mg.get("modifier_options", [])):
-                if isinstance(mod, str):
+        mg_ids = item.get("modifier_group_ids", {})
+        if isinstance(mg_ids, dict):
+            for mg_id in mg_ids:
+                mg_data = modifier_group_entities.get(mg_id, mg_ids.get(mg_id, {}))
+                if not mg_data or isinstance(mg_data, str):
                     continue
-                mod_price = mod.get("price_info", mod.get("price", {}))
-                if isinstance(mod_price, dict):
-                    mod_p = mod_price.get("price", mod_price.get("amount", 0)) / 100
-                elif isinstance(mod_price, (int, float)):
-                    mod_p = mod_price / 100
-                else:
-                    mod_p = 0.0
-                group.modifiers.append(
-                    Modifier(
-                        id=mod.get("id", mod.get("uuid", "")),
-                        title=mod.get("title", mod.get("name", "")),
-                        price=mod_p,
-                    )
+                group = ModifierGroup(
+                    id=mg_id,
+                    title=mg_data.get("title", mg_data.get("name", "")),
+                    min_selection=mg_data.get("minimum_selection", mg_data.get("min_permitted", 0)),
+                    max_selection=mg_data.get("maximum_selection", mg_data.get("max_permitted", 1)),
                 )
-            modifier_groups.append(group)
+                # Modifier options are items themselves in v2
+                for mod_item_id in mg_data.get("item_ids", []):
+                    mod_data = mg_data.get("modifier_options", {}).get(mod_item_id, {})
+                    if not mod_data:
+                        mod_data = {"title": mod_item_id}
+                    mod_price = mod_data.get("price_info", mod_data.get("price", {}))
+                    if isinstance(mod_price, dict):
+                        mod_p = mod_price.get("price", mod_price.get("amount", 0)) / 100
+                    elif isinstance(mod_price, (int, float)):
+                        mod_p = mod_price / 100
+                    else:
+                        mod_p = 0.0
+                    group.modifiers.append(
+                        Modifier(
+                            id=mod_item_id,
+                            title=mod_data.get("title", mod_data.get("name", "")),
+                            price=mod_p,
+                        )
+                    )
+                modifier_groups.append(group)
+
+        # Check suspension/availability
+        suspension = item.get("suspension_info", {})
+        is_available = not suspension.get("is_suspended", False) if suspension else item.get("is_available", True)
 
         return MenuItem(
-            id=item.get("id", item.get("uuid", "")),
+            id=item_id,
             title=item.get("title", item.get("name", "")),
             description=item.get("description", ""),
             price=price,
-            image_url=item.get("image_url", item.get("photo", {}).get("url") if isinstance(item.get("photo"), dict) else None),
+            image_url=item.get("image_url"),
             category_id=category_id,
             category_name=category_name,
             modifier_groups=modifier_groups,
-            is_available=item.get("is_available", item.get("enabled", True)),
+            is_available=is_available,
         )
 
-    # ── Orders ──────────────────────────────────────────────────────
+    # ── Orders (v1) ─────────────────────────────────────────────────
 
-    def get_orders(
+    def get_order(self, order_id: str) -> Order:
+        """Fetch a single order by ID."""
+        data = self._request("GET", f"{UBER_EATS_API_BASE_V1}/orders/{order_id}")
+        return self._parse_order(data, data.get("store", {}).get("store_id", ""))
+
+    # ── Reports (v1) ────────────────────────────────────────────────
+
+    def get_report(
         self,
-        store_id: str,
-        status: Optional[str] = None,
-        limit: int = 50,
+        store_ids: list[str],
+        report_type: str,
+        start_date: str,
+        end_date: str,
+    ) -> dict:
+        """Request an analytics report via POST /v1/eats/report.
+
+        Args:
+            store_ids: List of store UUIDs to include.
+            report_type: One of: ORDER_HISTORY, INACCURATE_ORDERS,
+                TOP_INACCURATE_ITEMS, DOWNTIME, CUSTOMER_FEEDBACK,
+                DELIVERY_FEEDBACK, MENU_ITEM_FEEDBACK, TOP_ITEMS_NOT_FOUND.
+            start_date: Start date (YYYY-MM-DD), max 31-day range.
+            end_date: End date (YYYY-MM-DD).
+        """
+        return self._request(
+            "POST",
+            f"{UBER_EATS_API_BASE_V1}/report",
+            json_body={
+                "report_type": report_type,
+                "store_uuids": store_ids,
+                "start_date": start_date,
+                "end_date": end_date,
+            },
+        )
+
+    def get_orders_from_report(
+        self,
+        store_ids: list[str],
+        start_date: str,
+        end_date: str,
     ) -> list[Order]:
-        """Fetch orders for a store."""
-        params: dict[str, Any] = {"limit": limit}
-        if status:
-            params["status"] = status
+        """Fetch order history for stores using the reports endpoint.
 
-        all_orders: list[Order] = []
-        next_key: Optional[str] = None
+        Since the Uber Eats API delivers orders via webhooks (not a list endpoint),
+        this uses the ORDER_HISTORY report to get historical order data.
+        """
+        data = self.get_report(store_ids, "ORDER_HISTORY", start_date, end_date)
 
-        while True:
-            if next_key:
-                params["next_key"] = next_key
-            data = self._request(
-                "GET", f"/stores/{store_id}/orders", params=params
-            )
+        orders: list[Order] = []
+        for row in data.get("orders", data.get("report_data", data if isinstance(data, list) else [])):
+            if isinstance(row, dict):
+                order = self._parse_order(row, row.get("store_id", store_ids[0] if store_ids else ""))
+                orders.append(order)
 
-            orders_list = data.get("orders", data if isinstance(data, list) else [])
-            for o in orders_list:
-                order = self._parse_order(o, store_id)
-                all_orders.append(order)
+        return orders
 
-            next_key = data.get("next_key")
-            if not next_key or len(all_orders) >= 500:
-                break
+    def get_store_feedback(
+        self,
+        store_ids: list[str],
+        start_date: str,
+        end_date: str,
+    ) -> dict:
+        """Get customer feedback report for stores."""
+        return self.get_report(store_ids, "CUSTOMER_FEEDBACK", start_date, end_date)
 
-        return all_orders
+    def get_inaccurate_orders(
+        self,
+        store_ids: list[str],
+        start_date: str,
+        end_date: str,
+    ) -> dict:
+        """Get inaccurate orders report."""
+        return self.get_report(store_ids, "INACCURATE_ORDERS", start_date, end_date)
+
+    def get_top_inaccurate_items(
+        self,
+        store_ids: list[str],
+        start_date: str,
+        end_date: str,
+    ) -> dict:
+        """Get top inaccurate items report."""
+        return self.get_report(store_ids, "TOP_INACCURATE_ITEMS", start_date, end_date)
+
+    def get_downtime_report(
+        self,
+        store_ids: list[str],
+        start_date: str,
+        end_date: str,
+    ) -> dict:
+        """Get store downtime report."""
+        return self.get_report(store_ids, "DOWNTIME", start_date, end_date)
 
     def _parse_order(self, o: dict, store_id: str) -> Order:
         items = []
-        for item in o.get("items", o.get("cart", {}).get("items", [])):
+        cart_items = o.get("items", [])
+        if not cart_items:
+            for cart in o.get("carts", []):
+                cart_items.extend(cart.get("items", []))
+
+        for item in cart_items:
             items.append(
                 {
                     "name": item.get("title", item.get("name", "")),
@@ -242,9 +370,7 @@ class UberEatsClient:
                     "price": item.get("price", {}).get("amount", 0) / 100
                     if isinstance(item.get("price"), dict)
                     else (item.get("price", 0) / 100 if isinstance(item.get("price"), (int, float)) else 0),
-                    "special_instructions": item.get(
-                        "special_instructions", ""
-                    ),
+                    "special_instructions": item.get("special_instructions", ""),
                     "modifiers": [
                         m.get("title", m.get("name", ""))
                         for m in item.get("selected_modifier_groups", item.get("modifiers", []))
@@ -257,7 +383,7 @@ class UberEatsClient:
         for issue in o.get("issues", o.get("order_issues", [])):
             issues.append(
                 OrderIssue(
-                    order_id=o.get("id", o.get("uuid", "")),
+                    order_id=o.get("id", o.get("order_id", o.get("uuid", ""))),
                     issue_type=issue.get("type", issue.get("issue_type", "unknown")),
                     description=issue.get("description", issue.get("reason", "")),
                     timestamp=issue.get("created_at", issue.get("timestamp")),
@@ -266,7 +392,9 @@ class UberEatsClient:
                 )
             )
 
-        total_info = o.get("total", o.get("payment", {}).get("total", 0))
+        # Handle payment object structure
+        payment = o.get("payment", {})
+        total_info = o.get("total", payment.get("total", 0))
         if isinstance(total_info, dict):
             total = total_info.get("amount", 0) / 100
         elif isinstance(total_info, (int, float)):
@@ -275,7 +403,7 @@ class UberEatsClient:
             total = 0.0
 
         return Order(
-            id=o.get("id", o.get("uuid", "")),
+            id=o.get("id", o.get("order_id", o.get("uuid", ""))),
             store_id=store_id,
             status=o.get("status", o.get("state", "")),
             total=total,
@@ -285,17 +413,6 @@ class UberEatsClient:
             issues=issues,
             customer_rating=o.get("rating", {}).get("value") if isinstance(o.get("rating"), dict) else o.get("rating"),
             raw_data=o,
-        )
-
-    # ── Reports / Analytics ─────────────────────────────────────────
-
-    def get_store_report(
-        self, store_id: str, start_date: str, end_date: str
-    ) -> dict:
-        """Fetch analytics/report data for a store within a date range."""
-        params = {"start_date": start_date, "end_date": end_date}
-        return self._request(
-            "GET", f"/stores/{store_id}/report", params=params
         )
 
     def close(self) -> None:

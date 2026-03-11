@@ -1,6 +1,7 @@
 """Main Uber Eats Analysis Agent — orchestrates data collection, analysis, and recommendations."""
 
 import sys
+from datetime import datetime, timedelta
 
 from rich.console import Console
 from rich.panel import Panel
@@ -109,13 +110,27 @@ def _run_analysis(client: UberEatsClient) -> None:
                 description=f"Menu loaded: {len(categories)} categories, {total_items} items",
             )
 
-            # Fetch orders
-            order_task = progress.add_task(f"Fetching orders for {store.name}...", total=None)
-            orders = client.get_orders(store.id)
+            # Fetch orders via reports API (last 31 days)
+            order_task = progress.add_task(f"Fetching order history for {store.name}...", total=None)
+            end_date = datetime.now().strftime("%Y-%m-%d")
+            start_date = (datetime.now() - timedelta(days=31)).strftime("%Y-%m-%d")
+            orders = client.get_orders_from_report([store.id], start_date, end_date)
             progress.update(
                 order_task,
-                description=f"Loaded {len(orders)} orders",
+                description=f"Loaded {len(orders)} orders (last 31 days)",
             )
+
+            # Fetch additional reports
+            report_task = progress.add_task(f"Fetching feedback & issue reports...", total=None)
+            extra_reports = {}
+            for report_type in ["CUSTOMER_FEEDBACK", "INACCURATE_ORDERS", "TOP_INACCURATE_ITEMS", "DOWNTIME"]:
+                try:
+                    extra_reports[report_type] = client.get_report(
+                        [store.id], report_type, start_date, end_date
+                    )
+                except Exception:
+                    extra_reports[report_type] = {}
+            progress.update(report_task, description="Reports loaded")
 
         # Build analysis
         console.print("\n[bold]Analyzing store data...[/bold]")
@@ -144,7 +159,7 @@ def _run_analysis(client: UberEatsClient) -> None:
         ) as progress:
             rec_task = progress.add_task("Claude is analyzing your data...", total=None)
             recommendations = generate_recommendations(
-                store_summary, menu_analysis, order_analysis
+                store_summary, menu_analysis, order_analysis, extra_reports
             )
             progress.update(rec_task, description="Recommendations ready!")
 

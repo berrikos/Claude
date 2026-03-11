@@ -1,6 +1,7 @@
 """AI-powered recommendation engine using Claude to analyze Uber Eats store data."""
 
 import json
+from typing import Optional
 
 import anthropic
 
@@ -26,9 +27,22 @@ When providing recommendations:
 """
 
 
-def generate_recommendations(store_summary: dict, menu_analysis: dict, order_analysis: dict) -> str:
+def generate_recommendations(
+    store_summary: dict,
+    menu_analysis: dict,
+    order_analysis: dict,
+    extra_reports: Optional[dict] = None,
+) -> str:
     """Use Claude to generate comprehensive business recommendations."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    extra_section = ""
+    if extra_reports:
+        extra_section = f"""
+
+## Additional Reports (Customer Feedback, Inaccurate Orders, Top Inaccurate Items, Downtime)
+{json.dumps(extra_reports, indent=2, default=str)}
+"""
 
     user_message = f"""Analyze this Uber Eats store data and provide detailed, actionable recommendations.
 
@@ -40,6 +54,7 @@ def generate_recommendations(store_summary: dict, menu_analysis: dict, order_ana
 
 ## Order Analysis
 {json.dumps(order_analysis, indent=2, default=str)}
+{extra_section}
 
 Based on this data, provide a comprehensive analysis with specific recommendations organized into these sections:
 
