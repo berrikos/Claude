@@ -1,0 +1,432 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════
+//   MERCHANT & ADMIN TABLES
+// ═══════════════════════════════════════
+
+model Merchant {
+  id                   String   @id @default(cuid())
+  squareMerchantId     String   @unique @map("square_merchant_id")
+  name                 String
+  slug                 String   @unique
+  email                String?
+  phone                String?
+  subscriptionPlan     String   @default("free") @map("subscription_plan")
+  subscriptionStatus   String   @default("active") @map("subscription_status")
+  stripeCustomerId     String?  @map("stripe_customer_id")
+  stripeSubscriptionId String?  @map("stripe_subscription_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  tokens               MerchantToken?
+  branding             MerchantBranding?
+  loyaltySettings      MerchantLoyaltySettings?
+  notificationSettings MerchantNotificationSettings?
+  users                MerchantUser[]
+  locations            Location[]
+  orders               Order[]
+  promotions           Promotion[]
+  menuCategoryOverrides MenuCategoryOverride[]
+  menuItemOverrides    MenuItemOverride[]
+  favoriteItems        FavoriteItem[]
+  activityLog          AdminActivityLog[]
+
+  @@map("merchants")
+}
+
+model MerchantToken {
+  id            String   @id @default(cuid())
+  merchantId    String   @unique @map("merchant_id")
+  accessToken   String   @map("access_token")
+  refreshToken  String   @map("refresh_token")
+  expiresAt     DateTime @map("expires_at")
+  scopes        String[]
+  lastRefreshed DateTime? @map("last_refreshed_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("merchant_tokens")
+}
+
+model MerchantUser {
+  id           String    @id @default(cuid())
+  merchantId   String    @map("merchant_id")
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  givenName    String?   @map("given_name")
+  familyName   String?   @map("family_name")
+  role         String    @default("owner")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  merchant    Merchant           @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  activityLog AdminActivityLog[]
+
+  @@map("merchant_users")
+}
+
+model MerchantBranding {
+  id                 String  @id @default(cuid())
+  merchantId         String  @unique @map("merchant_id")
+  logoUrl            String? @map("logo_url")
+  logoWideUrl        String? @map("logo_wide_url")
+  heroImageUrl       String? @map("hero_image_url")
+  heroText           String? @map("hero_text")
+  primaryColor       String  @default("#E23744") @map("primary_color")
+  accentColor        String  @default("#FF8A00") @map("accent_color")
+  textColor          String  @default("#1F2937") @map("text_color")
+  fontPair           String  @default("inter-system") @map("font_pair")
+  menuLayout         String  @default("grid") @map("menu_layout")
+  categoryDisplay    String  @default("tabs") @map("category_display")
+  showHero           Boolean @default(true) @map("show_hero")
+  showFeatured       Boolean @default(true) @map("show_featured")
+  showAbout          Boolean @default(true) @map("show_about")
+  showMap            Boolean @default(true) @map("show_map")
+  showHours          Boolean @default(true) @map("show_hours")
+  aboutText          String? @map("about_text")
+  announcementText   String? @map("announcement_text")
+  announcementActive Boolean @default(false) @map("announcement_active")
+  socialInstagram    String? @map("social_instagram")
+  socialFacebook     String? @map("social_facebook")
+  socialTwitter      String? @map("social_twitter")
+  socialTiktok       String? @map("social_tiktok")
+  socialYelp         String? @map("social_yelp")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("merchant_branding")
+}
+
+// ═══════════════════════════════════════
+//   LOCATIONS
+// ═══════════════════════════════════════
+
+model Location {
+  id                   String  @id @default(cuid())
+  merchantId           String  @map("merchant_id")
+  squareLocationId     String  @unique @map("square_location_id")
+  name                 String
+  address              Json?
+  latitude             Float?
+  longitude            Float?
+  phone                String?
+  businessHours        Json?   @map("business_hours")
+  onlineOrdering       Boolean @default(true) @map("online_ordering")
+  pickupEnabled        Boolean @default(true) @map("pickup_enabled")
+  curbsideEnabled      Boolean @default(false) @map("curbside_enabled")
+  scheduledOrders      Boolean @default(true) @map("scheduled_orders")
+  asapOrders           Boolean @default(true) @map("asap_orders")
+  pickupLeadTime       Int     @default(20) @map("pickup_lead_time")
+  minOrderAmount       Int     @default(0) @map("min_order_amount")
+  orderThrottleMax     Int?    @map("order_throttle_max")
+  orderThrottleWindow  Int     @default(30) @map("order_throttle_window")
+  tippingEnabled       Boolean @default(true) @map("tipping_enabled")
+  tipPresets           Json    @default("[15, 20, 25]") @map("tip_presets")
+  tipDefaultIndex      Int     @default(1) @map("tip_default_index")
+  tipCustomEnabled     Boolean @default(true) @map("tip_custom_enabled")
+  busyMode             Boolean @default(false) @map("busy_mode")
+  busyModeExtraTime    Int     @default(15) @map("busy_mode_extra_time")
+  isActive             Boolean @default(true) @map("is_active")
+
+  merchant              Merchant              @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  orders                Order[]
+  onlineOrderingHours   OnlineOrderingHours[]
+  holidayClosures       HolidayClosure[]
+  menuCategoryOverrides MenuCategoryOverride[]
+  menuItemOverrides     MenuItemOverride[]
+
+  @@map("locations")
+}
+
+model OnlineOrderingHours {
+  id             String  @id @default(cuid())
+  locationId     String  @map("location_id")
+  dayOfWeek      Int     @map("day_of_week")
+  openTime       String  @map("open_time")
+  closeTime      String  @map("close_time")
+  useSquareHours Boolean @default(true) @map("use_square_hours")
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@map("online_ordering_hours")
+}
+
+model HolidayClosure {
+  id         String   @id @default(cuid())
+  locationId String   @map("location_id")
+  date       DateTime @db.Date
+  message    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@map("holiday_closures")
+}
+
+// ═══════════════════════════════════════
+//   MENU DISPLAY OVERRIDES
+// ═══════════════════════════════════════
+
+model MenuCategoryOverride {
+  id               String  @id @default(cuid())
+  merchantId       String  @map("merchant_id")
+  locationId       String? @map("location_id")
+  squareCategoryId String  @map("square_category_id")
+  displayName      String? @map("display_name")
+  sortOrder        Int     @default(0) @map("sort_order")
+  isVisible        Boolean @default(true) @map("is_visible")
+  availableStart   String? @map("available_start")
+  availableEnd     String? @map("available_end")
+  availableDays    Int[]   @map("available_days")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  merchant Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, locationId, squareCategoryId])
+  @@map("menu_category_overrides")
+}
+
+model MenuItemOverride {
+  id                 String   @id @default(cuid())
+  merchantId         String   @map("merchant_id")
+  locationId         String?  @map("location_id")
+  squareItemId       String   @map("square_item_id")
+  displayName        String?  @map("display_name")
+  displayDescription String?  @map("display_description")
+  displayImageUrl    String?  @map("display_image_url")
+  sortOrder          Int      @default(0) @map("sort_order")
+  isVisible          Boolean  @default(true) @map("is_visible")
+  isFeatured         Boolean  @default(false) @map("is_featured")
+  isUnavailable      Boolean  @default(false) @map("is_unavailable")
+  unavailableUntil   DateTime? @map("unavailable_until")
+  dietaryTags        String[] @map("dietary_tags")
+  spicyLevel         Int      @default(0) @map("spicy_level")
+  availableStart     String?  @map("available_start")
+  availableEnd       String?  @map("available_end")
+  availableDays      Int[]    @map("available_days")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  merchant Merchant  @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([merchantId, locationId, squareItemId])
+  @@map("menu_item_overrides")
+}
+
+// ═══════════════════════════════════════
+//   PROMOTIONS
+// ═══════════════════════════════════════
+
+model Promotion {
+  id                  String    @id @default(cuid())
+  merchantId          String    @map("merchant_id")
+  locationId          String?   @map("location_id")
+  name                String
+  type                String
+  value               Int
+  freeItemId          String?   @map("free_item_id")
+  minOrderAmount      Int?      @map("min_order_amount")
+  promoCode           String?   @map("promo_code")
+  targetAudience      String    @default("all") @map("target_audience")
+  maxUses             Int?      @map("max_uses")
+  timesUsed           Int       @default(0) @map("times_used")
+  startsAt            DateTime  @map("starts_at")
+  endsAt              DateTime? @map("ends_at")
+  isActive            Boolean   @default(true) @map("is_active")
+  displayOnStorefront Boolean   @default(true) @map("display_on_storefront")
+  displayOnCheckout   Boolean   @default(true) @map("display_on_checkout")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  orders   Order[]
+
+  @@map("promotions")
+}
+
+// ═══════════════════════════════════════
+//   CUSTOMER TABLES
+// ═══════════════════════════════════════
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String?  @map("password_hash")
+  givenName         String?  @map("given_name")
+  familyName        String?  @map("family_name")
+  phone             String?
+  squareCustomerId  String?  @map("square_customer_id")
+  stripeCustomerId  String?  @map("stripe_customer_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  addresses    UserAddress[]
+  savedCards   UserSavedCard[]
+  orders       Order[]
+  favoriteItems FavoriteItem[]
+
+  @@map("users")
+}
+
+model UserAddress {
+  id        String  @id @default(cuid())
+  userId    String  @map("user_id")
+  label     String
+  address   Json
+  isDefault Boolean @default(false) @map("is_default")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_addresses")
+}
+
+model UserSavedCard {
+  id                     String  @id @default(cuid())
+  userId                 String  @map("user_id")
+  stripePaymentMethodId  String  @map("stripe_payment_method_id")
+  lastFour               String  @map("last_four")
+  brand                  String
+  expMonth               Int     @map("exp_month")
+  expYear                Int     @map("exp_year")
+  isDefault              Boolean @default(false) @map("is_default")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_saved_cards")
+}
+
+// ═══════════════════════════════════════
+//   ORDER TABLES
+// ═══════════════════════════════════════
+
+model Order {
+  id                     String    @id @default(cuid())
+  orderNumber            String    @unique @map("order_number")
+  userId                 String?   @map("user_id")
+  merchantId             String    @map("merchant_id")
+  locationId             String    @map("location_id")
+  squareOrderId          String?   @map("square_order_id")
+  stripePaymentIntentId  String?   @map("stripe_payment_intent_id")
+  status                 String    @default("pending")
+  fulfillmentType        String    @default("pickup") @map("fulfillment_type")
+  pickupAt               DateTime? @map("pickup_at")
+  subtotal               Int       @default(0)
+  tax                    Int       @default(0)
+  tip                    Int       @default(0)
+  total                  Int       @default(0)
+  loyaltyPointsEarned    Int       @default(0) @map("loyalty_points_earned")
+  loyaltyRewardId        String?   @map("loyalty_reward_id")
+  promotionId            String?   @map("promotion_id")
+  discountAmount         Int       @default(0) @map("discount_amount")
+  guestName              String?   @map("guest_name")
+  guestEmail             String?   @map("guest_email")
+  guestPhone             String?   @map("guest_phone")
+  vehicleInfo            String?   @map("vehicle_info")
+  specialInstructions    String?   @map("special_instructions")
+  refundAmount           Int       @default(0) @map("refund_amount")
+  refundReason           String?   @map("refund_reason")
+  cancelledReason        String?   @map("cancelled_reason")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  user      User?      @relation(fields: [userId], references: [id])
+  merchant  Merchant   @relation(fields: [merchantId], references: [id])
+  location  Location   @relation(fields: [locationId], references: [id])
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+  items     OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                  String @id @default(cuid())
+  orderId             String @map("order_id")
+  squareCatalogId     String @map("square_catalog_id")
+  name                String
+  quantity            Int
+  basePrice           Int    @map("base_price")
+  modifierTotal       Int    @default(0) @map("modifier_total")
+  modifiers           Json?
+  specialInstructions String? @map("special_instructions")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model FavoriteItem {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  merchantId      String   @map("merchant_id")
+  squareCatalogId String   @map("square_catalog_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, merchantId, squareCatalogId])
+  @@map("favorite_items")
+}
+
+// ═══════════════════════════════════════
+//   LOYALTY SETTINGS
+// ═══════════════════════════════════════
+
+model MerchantLoyaltySettings {
+  id                    String  @id @default(cuid())
+  merchantId            String  @unique @map("merchant_id")
+  loyaltyEnabled        Boolean @default(true) @map("loyalty_enabled")
+  showPointsInHeader    Boolean @default(true) @map("show_points_in_header")
+  showPointsPreview     Boolean @default(true) @map("show_points_preview")
+  autoEnrollmentPrompt  Boolean @default(true) @map("auto_enrollment_prompt")
+  rewardRedemption      Boolean @default(true) @map("reward_redemption")
+  loyaltyBanner         Boolean @default(false) @map("loyalty_banner")
+  loyaltyBannerText     String? @map("loyalty_banner_text")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("merchant_loyalty_settings")
+}
+
+// ═══════════════════════════════════════
+//   NOTIFICATION & ACTIVITY
+// ═══════════════════════════════════════
+
+model MerchantNotificationSettings {
+  id                String   @id @default(cuid())
+  merchantId        String   @unique @map("merchant_id")
+  newOrderEmail     Boolean  @default(true) @map("new_order_email")
+  newOrderSound     Boolean  @default(true) @map("new_order_sound")
+  dailySummaryEmail Boolean  @default(false) @map("daily_summary_email")
+  weeklyReportEmail Boolean  @default(false) @map("weekly_report_email")
+  lowStockAlerts    Boolean  @default(true) @map("low_stock_alerts")
+  alertRecipients   String[] @map("alert_recipients")
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@map("merchant_notification_settings")
+}
+
+model AdminActivityLog {
+  id             String   @id @default(cuid())
+  merchantId     String   @map("merchant_id")
+  merchantUserId String   @map("merchant_user_id")
+  action         String
+  details        Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  merchant     Merchant     @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  merchantUser MerchantUser @relation(fields: [merchantUserId], references: [id], onDelete: Cascade)
+
+  @@map("admin_activity_log")
+}

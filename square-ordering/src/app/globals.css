@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #E23744;
+  --color-primary-dark: #C62D38;
+  --color-accent: #FF8A00;
+  --color-surface: #F8F9FA;
+}
+
+@theme inline {
+  --color-background: #ffffff;
+  --color-foreground: #1F2937;
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-accent: var(--color-accent);
+  --color-surface: var(--color-surface);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Skip navigation link */
+.skip-nav {
+  position: absolute;
+  top: -2.5rem;
+  left: 0;
+  z-index: 50;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  transition: top 0.2s;
+}
+.skip-nav:focus {
+  top: 0;
+}
+
+/* Scrollbar styling for category tabs */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
