@@ -355,6 +355,7 @@ model OrderItem {
   name                String
   quantity            Int
   basePrice           Int    @map("base_price")
+  totalPrice          Int    @default(0) @map("total_price")
   modifierTotal       Int    @default(0) @map("modifier_total")
   modifiers           Json?
   specialInstructions String? @map("special_instructions")
@@ -369,6 +370,7 @@ model FavoriteItem {
   userId          String   @map("user_id")
   merchantId      String   @map("merchant_id")
   squareCatalogId String   @map("square_catalog_id")
+  itemName        String   @default("") @map("item_name")
   createdAt       DateTime @default(now()) @map("created_at")
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
