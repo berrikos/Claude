@@ -44,6 +44,68 @@ function CheckoutContent() {
   const [fulfillment, setFulfillment] = useState<"pickup" | "curbside">("pickup");
   const [vehicleInfo, setVehicleInfo] = useState("");
 
+  // Pickup time
+  const [pickupType, setPickupType] = useState<"asap" | "scheduled">("asap");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
+
+  // Generate available dates (today + next 2 days)
+  const getAvailableDates = () => {
+    const dates: { value: string; label: string }[] = [];
+    const now = new Date();
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + i);
+      const value = d.toISOString().split("T")[0];
+      const label =
+        i === 0
+          ? "Today"
+          : i === 1
+          ? "Tomorrow"
+          : d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+      dates.push({ value, label });
+    }
+    return dates;
+  };
+
+  // Generate time slots in 15-minute intervals (default 9 AM - 9 PM)
+  const getTimeSlots = () => {
+    const slots: { value: string; label: string }[] = [];
+    const startHour = 9;
+    const endHour = 21;
+    const now = new Date();
+    const isToday = scheduledDate === new Date().toISOString().split("T")[0];
+
+    for (let h = startHour; h < endHour; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        // Skip past times if today
+        if (isToday) {
+          const slotTime = new Date();
+          slotTime.setHours(h, m, 0, 0);
+          // Add 30 min buffer so the order can be prepared
+          if (slotTime.getTime() <= now.getTime() + 30 * 60 * 1000) continue;
+        }
+        const hour12 = h % 12 || 12;
+        const ampm = h < 12 ? "AM" : "PM";
+        const minuteStr = m.toString().padStart(2, "0");
+        const value = `${h.toString().padStart(2, "0")}:${minuteStr}`;
+        const label = `${hour12}:${minuteStr} ${ampm}`;
+        slots.push({ value, label });
+      }
+    }
+    return slots;
+  };
+
+  // Compute the pickupAt ISO string
+  const computePickupAt = (): string | null => {
+    if (pickupType === "asap") return null;
+    if (!scheduledDate || !scheduledTime) return null;
+    const [hours, minutes] = scheduledTime.split(":").map(Number);
+    const dt = new Date(scheduledDate + "T00:00:00");
+    dt.setHours(hours, minutes, 0, 0);
+    return dt.toISOString();
+  };
+
   useEffect(() => {
     if (items.length === 0) {
       router.push(`/${restaurant}`);
@@ -167,6 +229,85 @@ function CheckoutContent() {
             )}
           </div>
 
+          {/* Pickup Time */}
+          <div className="mb-6 rounded-lg border p-4">
+            <h2 className="mb-4 font-medium text-gray-900">Pickup Time</h2>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPickupType("asap")}
+                className={`flex-1 rounded-lg border py-3 text-sm font-medium transition-colors ${
+                  pickupType === "asap"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                ASAP
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPickupType("scheduled");
+                  if (!scheduledDate) {
+                    setScheduledDate(new Date().toISOString().split("T")[0]);
+                  }
+                }}
+                className={`flex-1 rounded-lg border py-3 text-sm font-medium transition-colors ${
+                  pickupType === "scheduled"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                Schedule for Later
+              </button>
+            </div>
+            {pickupType === "scheduled" && (
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Date
+                  </label>
+                  <div className="flex gap-2">
+                    {getAvailableDates().map((d) => (
+                      <button
+                        key={d.value}
+                        type="button"
+                        onClick={() => {
+                          setScheduledDate(d.value);
+                          setScheduledTime("");
+                        }}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                          scheduledDate === d.value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Time
+                  </label>
+                  <select
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="">Select a time</option>
+                    {getTimeSlots().map((slot) => (
+                      <option key={slot.value} value={slot.value}>
+                        {slot.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Payment */}
           {clientSecret && (
             <div className="rounded-lg border p-4">
@@ -189,6 +330,7 @@ function CheckoutContent() {
                   fulfillment={fulfillment}
                   vehicleInfo={vehicleInfo}
                   tipAmount={tipAmount}
+                  pickupAt={computePickupAt()}
                 />
               </Elements>
             </div>
@@ -256,6 +398,7 @@ function PaymentForm({
   fulfillment,
   vehicleInfo,
   tipAmount,
+  pickupAt,
 }: {
   restaurant: string;
   name: string;
@@ -264,6 +407,7 @@ function PaymentForm({
   fulfillment: "pickup" | "curbside";
   vehicleInfo: string;
   tipAmount: number;
+  pickupAt: string | null;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -299,6 +443,7 @@ function PaymentForm({
           guestPhone: phone,
           vehicleInfo: fulfillment === "curbside" ? vehicleInfo : null,
           tip: tipAmount,
+          pickupAt: pickupAt || undefined,
         }),
       });
 

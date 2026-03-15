@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       vehicleInfo,
       tip = 0,
       stripePaymentIntentId,
+      pickupAt,
     } = body;
 
     if (!merchantId || !locationId || !items?.length) {
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
         guestPhone,
         vehicleInfo: vehicleInfo || null,
         stripePaymentIntentId: stripePaymentIntentId || null,
+        pickupAt: pickupAt ? new Date(pickupAt) : null,
         items: {
           create: items.map(
             (item: {
