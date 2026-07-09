@@ -1,0 +1,24 @@
+{
+  "name": "whatsapp-pc-assistant",
+  "version": "1.0.0",
+  "description": "WhatsApp personal assistant that answers questions and performs tasks on your PC using Claude, with local memory and complexity-based model routing",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "reset-auth": "rm -rf data/wa-auth && echo 'WhatsApp auth cleared. Re-scan QR on next start.'"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.1.0",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.5",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
