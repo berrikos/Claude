@@ -3,16 +3,32 @@ import fs from 'fs';
 import path from 'path';
 import Anthropic from '@anthropic-ai/sdk';
 import { DB_PATH, DATA_DIR, MODELS, config } from './config.js';
+import {
+  isObsidianEnabled,
+  initObsidian,
+  obsidianSaveFact,
+  obsidianListFacts,
+  obsidianForgetFacts,
+  obsidianRecallFacts,
+  obsidianSearchVault,
+  obsidianAppendChatLog,
+} from './obsidian.js';
 
-// Local, private memory: full conversation log + distilled long-term facts,
-// both searchable via SQLite FTS5. Nothing ever leaves the machine except
-// the snippets injected into model prompts.
+// Local, private memory. Two possible brains:
+//
+// - Default: SQLite only — conversation log + facts, searchable via FTS5.
+// - Obsidian mode (OBSIDIAN_VAULT set): the vault is the long-term brain —
+//   facts live in Facts.md, chats are logged as daily notes, and recall also
+//   searches the user's entire vault. SQLite keeps the fast recent-history
+//   index either way. Nothing leaves the machine except the snippets
+//   injected into model prompts.
 
 let db;
 let anthropic;
 
 export function initMemory() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (isObsidianEnabled()) initObsidian();
   db = new Database(DB_PATH);
   db.pragma('journal_mode = WAL');
 
@@ -61,6 +77,13 @@ export function saveMessage(chatId, role, content) {
     role,
     content
   );
+  if (isObsidianEnabled()) {
+    try {
+      obsidianAppendChatLog(role, content);
+    } catch {
+      // vault write failure must never break the chat flow
+    }
+  }
 }
 
 export function getRecentHistory(chatId, limit = config.historyWindow) {
@@ -76,6 +99,7 @@ export function getRecentHistory(chatId, limit = config.historyWindow) {
 }
 
 export function saveFact(fact, source = 'user') {
+  if (isObsidianEnabled()) return obsidianSaveFact(fact, source);
   const clean = fact.trim();
   if (!clean) return false;
   const res = db
@@ -85,47 +109,69 @@ export function saveFact(fact, source = 'user') {
 }
 
 export function listFacts(limit = 200) {
+  if (isObsidianEnabled()) return obsidianListFacts(limit);
   return db
     .prepare('SELECT fact, source, created_at FROM facts ORDER BY id DESC LIMIT ?')
     .all(limit);
 }
 
 export function forgetFacts(term) {
+  if (isObsidianEnabled()) return obsidianForgetFacts(term);
   const res = db.prepare('DELETE FROM facts WHERE fact LIKE ?').run(`%${term}%`);
   return res.changes;
 }
 
-function ftsQuery(text) {
-  // Turn free text into a safe OR-of-terms FTS5 query.
-  const terms = text
+function extractTerms(text) {
+  return text
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter((w) => w.length > 2)
     .slice(0, 12);
+}
+
+function ftsQuery(text) {
+  // Turn free text into a safe OR-of-terms FTS5 query.
+  const terms = extractTerms(text);
   if (!terms.length) return null;
   return terms.map((t) => `"${t}"`).join(' OR ');
 }
 
-// Retrieve memory relevant to the incoming message: matching long-term facts
-// plus a few older conversation snippets outside the recent-history window.
+// Retrieve memory relevant to the incoming message: matching long-term facts,
+// older conversation snippets outside the recent-history window, and (in
+// Obsidian mode) matching notes from anywhere in the vault.
 export function recallRelevant(chatId, text, { factLimit = 8, snippetLimit = 3 } = {}) {
+  const terms = extractTerms(text);
   const q = ftsQuery(text);
-  const result = { facts: [], snippets: [] };
+  const result = { facts: [], snippets: [], notes: [] };
+
+  if (isObsidianEnabled()) {
+    try {
+      result.facts = obsidianRecallFacts(terms, factLimit);
+      result.notes = obsidianSearchVault(terms);
+    } catch {
+      // vault read failure degrades recall, never breaks the reply
+    }
+  }
+
   if (!q) {
-    result.facts = db.prepare('SELECT fact FROM facts ORDER BY id DESC LIMIT ?').all(factLimit)
-      .map((r) => r.fact);
+    if (!isObsidianEnabled()) {
+      result.facts = db.prepare('SELECT fact FROM facts ORDER BY id DESC LIMIT ?').all(factLimit)
+        .map((r) => r.fact);
+    }
     return result;
   }
 
   try {
-    result.facts = db
-      .prepare(
-        `SELECT f.fact FROM facts_fts ft JOIN facts f ON f.id = ft.rowid
-         WHERE facts_fts MATCH ? ORDER BY rank LIMIT ?`
-      )
-      .all(q, factLimit)
-      .map((r) => r.fact);
+    if (!isObsidianEnabled()) {
+      result.facts = db
+        .prepare(
+          `SELECT f.fact FROM facts_fts ft JOIN facts f ON f.id = ft.rowid
+           WHERE facts_fts MATCH ? ORDER BY rank LIMIT ?`
+        )
+        .all(q, factLimit)
+        .map((r) => r.fact);
+    }
 
     const cutoff = db
       .prepare('SELECT COALESCE(MIN(id), 0) AS min_id FROM (SELECT id FROM messages WHERE chat_id = ? ORDER BY id DESC LIMIT ?)')
@@ -142,8 +188,10 @@ export function recallRelevant(chatId, text, { factLimit = 8, snippetLimit = 3 }
       .map((r) => `[${r.created_at}] ${r.role}: ${r.content.slice(0, 300)}`);
   } catch {
     // FTS syntax edge case — fall back to recent facts only.
-    result.facts = db.prepare('SELECT fact FROM facts ORDER BY id DESC LIMIT ?').all(factLimit)
-      .map((r) => r.fact);
+    if (!isObsidianEnabled()) {
+      result.facts = db.prepare('SELECT fact FROM facts ORDER BY id DESC LIMIT ?').all(factLimit)
+        .map((r) => r.fact);
+    }
   }
   return result;
 }

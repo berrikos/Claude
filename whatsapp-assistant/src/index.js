@@ -1,7 +1,6 @@
 import pino from 'pino';
 import { validateConfig, config, MODELS } from './config.js';
 import { initMemory } from './memory.js';
-import { startWhatsApp } from './whatsapp.js';
 import { handleMessage } from './brain.js';
 
 const log = pino({
@@ -17,20 +16,27 @@ async function main() {
 
   log.info(
     {
+      provider: config.waProvider,
       models: MODELS,
       workDir: config.workDir,
+      brain: config.obsidianVault ? `Obsidian vault (${config.obsidianVault})` : 'SQLite',
       allowedNumbers: config.allowedNumbers.map((n) => `...${n.slice(-4)}`),
     },
     'Starting WhatsApp PC assistant'
   );
 
   initMemory();
-  log.info('Local memory ready (SQLite)');
+  log.info('Memory ready');
 
-  await startWhatsApp({
-    log,
-    onMessage: ({ chatId, text, onStatus }) => handleMessage({ chatId, text, log, onStatus }),
-  });
+  const onMessage = ({ chatId, text, onStatus }) => handleMessage({ chatId, text, log, onStatus });
+
+  if (config.waProvider === 'whapi') {
+    const { startWhapi } = await import('./whapi.js');
+    await startWhapi({ onMessage, log });
+  } else {
+    const { startWhatsApp } = await import('./whatsapp.js');
+    await startWhatsApp({ onMessage, log });
+  }
 }
 
 process.on('unhandledRejection', (err) => log.error({ err: err?.message }, 'Unhandled rejection'));

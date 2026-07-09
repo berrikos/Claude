@@ -41,6 +41,9 @@ function buildMemoryBlock(recall) {
   if (recall.facts.length) {
     parts.push('Remembered facts about the user:\n- ' + recall.facts.join('\n- '));
   }
+  if (recall.notes?.length) {
+    parts.push("From the user's Obsidian vault:\n" + recall.notes.join('\n'));
+  }
   if (recall.snippets.length) {
     parts.push('Possibly relevant past conversation:\n' + recall.snippets.join('\n'));
   }

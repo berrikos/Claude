@@ -24,6 +24,22 @@ export const MODELS = {
 export const config = {
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 
+  // WhatsApp transport: 'whapi' (cloud API, webhook-based — no QR pairing) or
+  // 'baileys' (direct WhatsApp Web protocol). Auto-selects whapi when a token
+  // is present.
+  waProvider: process.env.WA_PROVIDER || (process.env.WHAPI_TOKEN ? 'whapi' : 'baileys'),
+  whapiToken: process.env.WHAPI_TOKEN || '',
+  whapiApiUrl: (process.env.WHAPI_API_URL || 'https://gate.whapi.cloud').replace(/\/$/, ''),
+  webhookPort: parseInt(process.env.WEBHOOK_PORT || '8088', 10),
+  webhookPath: process.env.WEBHOOK_PATH || '/webhook',
+
+  // Path to an Obsidian vault. When set, the vault becomes the long-term
+  // brain: facts live in a markdown note, chats are logged as daily notes,
+  // and memory recall searches the whole vault (your own notes included).
+  obsidianVault: process.env.OBSIDIAN_VAULT || null,
+  // Subfolder inside the vault for assistant-managed notes.
+  obsidianFolder: process.env.OBSIDIAN_FOLDER || 'Assistant',
+
   // Comma-separated phone numbers (digits only, country code, no +) allowed
   // to command this assistant. Empty = reject everyone (safe default, since
   // this thing can run commands on your PC).
@@ -54,6 +70,12 @@ export function validateConfig() {
       'ALLOWED_NUMBERS is empty. Set it to your own WhatsApp number (e.g. 61412345678) — ' +
         'otherwise every message is ignored, since this assistant can run commands on your PC.'
     );
+  }
+  if (config.waProvider === 'whapi' && !config.whapiToken) {
+    problems.push('WA_PROVIDER=whapi but WHAPI_TOKEN is not set.');
+  }
+  if (!['whapi', 'baileys'].includes(config.waProvider)) {
+    problems.push(`Unknown WA_PROVIDER "${config.waProvider}" (use "whapi" or "baileys").`);
   }
   return problems;
 }
