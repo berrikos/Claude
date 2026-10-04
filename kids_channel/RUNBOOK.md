@@ -82,3 +82,12 @@ approval, coming next).
 - Content must be correct, kind and safe for ages 2–6. No brands, real people or scary scenes.
 - If a fal / ElevenLabs model id stops working, update the defaults in `config.py`
   (check the provider's docs) and note it in the commit message.
+
+## Who runs what (cost-aware)
+| Routine | When (Melbourne) | Model | Does |
+|---|---|---|---|
+| Production | daily 6:50am | Sonnet | steps 1–5 + 7: approvals, fixes, write scripts, render, QA, send |
+| Approvals | daily 12:50pm & 6:50pm | Haiku | step 1 only (`approvals`), then commit/push state. Never writes or renders. |
+| Weekly planner | Monday 7:50am | Opus | step 6 compilations, review what's working, refine `bible.md` topics/titles, weekly WhatsApp summary |
+Rough Claude usage: production ~20–40 min/day on Sonnet, approvals ~2 min each on Haiku,
+planner ~20 min/week on Opus.
