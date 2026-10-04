@@ -1,4 +1,4 @@
-# Sunny Hollow — kids learning-story YouTube channel
+# Buttercup Hollow — kids learning-story YouTube channel
 
 Short story videos for ages 2–6 (long episodes + Shorts), made with AI and run by a
 scheduled Claude Code session. The owner approves everything over WhatsApp.

@@ -1,10 +1,10 @@
-# Sunny Hollow — Series Bible
+# Buttercup Hollow — Series Bible
 
 Short story-driven learning videos for kids aged 2–6. Every video is a tiny story
 with ONE clear thing to learn. English, aimed at US / UK / AU / CA.
 
 ## The world
-Sunny Hollow is a cozy green valley with a winding stream, a big apple tree,
+Buttercup Hollow is a cozy green valley with a winding stream, a big apple tree,
 a red-roofed treehouse, a little market and a lily pond. Always bright, warm and safe.
 
 ## Characters (look must never change — use the reference sheets in `assets/characters/`)
@@ -32,7 +32,7 @@ uncluttered backgrounds, no text in the image.
    "Can you say it with me? …"
 4. **Practice** — the friends use it again 2–3 times (count again, spot another color).
 5. **Happy ending + recap** — one sentence recap, then
-   "See you next time in Sunny Hollow!"
+   "See you next time in Buttercup Hollow!"
 
 ### Short (`format: "short"`, 9:16, 25–50 s, 4–6 scenes)
 One beat: hook in the first 2 seconds → one learning item → a smile ending.
@@ -44,7 +44,7 @@ Shorts can be a moment from an episode or a standalone mini-story.
 - No brands, no real people, no scary animals or loud jump moments, no unsafe behaviour
   shown as fun (e.g. running into the road).
 - Every video teaches something real and correct (count right, colors right, facts right).
-- Titles: short, clear, keyword first. e.g. "Counting to 5 with Pip | Sunny Hollow Stories for Kids".
+- Titles: short, clear, keyword first. e.g. "Counting to 5 with Pip | Buttercup Hollow Stories for Kids".
 - Each scene: max ~3 lines of dialogue. 1 scene ≈ 6–15 seconds.
 
 ## Season 1 curriculum (in order; tick off in `state.json`)

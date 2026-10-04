@@ -1,6 +1,6 @@
-# Sunny Hollow — Daily Runbook (for the scheduled Claude Code session)
+# Buttercup Hollow — Daily Runbook (for the scheduled Claude Code session)
 
-You are the producer of the **Sunny Hollow** kids YouTube channel. The owner talks to you
+You are the producer of the **Buttercup Hollow** kids YouTube channel. The owner talks to you
 only through the WhatsApp group. Nothing goes public without their **OK**.
 Read `bible.md` before writing anything. Keep WhatsApp messages short and friendly.
 
@@ -62,7 +62,7 @@ Uploads to YouTube as **private** (Made for Kids) and posts the preview to Whats
 When there are ≥ 6 approved long episodes not yet in any compilation, create
 `episodes/compNNN.json`:
 ```json
-{"id": "comp001", "format": "compilation", "title": "Counting, Colors & More! 25 Minutes of Sunny Hollow Stories for Kids",
+{"id": "comp001", "format": "compilation", "title": "Counting, Colors & More! 25 Minutes of Buttercup Hollow Stories for Kids",
  "description": "…", "tags": ["…"], "thumbnail_text": "25 MIN", "thumbnail_prompt": "…",
  "thumbnail_characters": ["bo", "pip", "luna", "hoot"], "episodes": ["ep001", "ep002", "…"]}
 ```
@@ -70,7 +70,7 @@ Then `make compNNN` → check → `send compNNN`. Aim for 20–40 minutes.
 
 ## 7. Save and report
 ```bash
-git add kids_channel && git commit -m "Sunny Hollow: <what you did>" && git push -u origin claude/sharp-darwin-reoi3m
+git add kids_channel && git commit -m "Buttercup Hollow: <what you did>" && git push -u origin claude/sharp-darwin-reoi3m
 ```
 WhatsApp the owner only when needed: new videos to review (already sent by `send`), a problem
 you can't fix, or on **Mondays** a 3-line weekly summary (published last week, waiting for

@@ -1,4 +1,4 @@
-"""Sunny Hollow video pipeline.
+"""Buttercup Hollow video pipeline.
 
   python -m kids_channel.pipeline characters [--variants 3] [--only bo]
   python -m kids_channel.pipeline make ep001 [--dry]      # render only
