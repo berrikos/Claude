@@ -1,0 +1,36 @@
+{
+  "style": "high-end 3D animated feature film style, soft rounded shapes, big expressive eyes, warm pastel palette, soft golden-hour lighting, shallow depth of field, clean uncluttered background, cozy and friendly, no text, no letters, no watermark",
+  "world": "Sunny Hollow, a cozy green valley with a winding stream, a big apple tree, a red-roofed treehouse and a lily pond",
+  "characters": {
+    "bo": {
+      "name": "Bo",
+      "look": "a small round baby elephant with sky-blue skin, big floppy ears, big shiny dark eyes, a short trunk and a knitted orange scarf",
+      "voice_id": "cgSgspJ2msm6clMCkdW9",
+      "voice_settings": {"stability": 0.35, "similarity_boost": 0.75, "style": 0.55, "speed": 0.95}
+    },
+    "pip": {
+      "name": "Pip",
+      "look": "a tiny fluffy round yellow chick with a small orange beak, bright eyes and little red sneakers",
+      "voice_id": "FGY2WhTYpPnrIDTdsKH5",
+      "voice_settings": {"stability": 0.3, "similarity_boost": 0.75, "style": 0.7, "speed": 1.0}
+    },
+    "luna": {
+      "name": "Luna",
+      "look": "a gentle lavender-purple bunny with long ears, a pink flower behind one ear and a small white apron with paint smudges",
+      "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+      "voice_settings": {"stability": 0.45, "similarity_boost": 0.75, "style": 0.45, "speed": 0.95}
+    },
+    "hoot": {
+      "name": "Grandpa Hoot",
+      "look": "a kind old brown owl with fluffy feathers, round golden glasses and a green knitted cardigan",
+      "voice_id": "pqHfZKP75CvOlQylNhV4",
+      "voice_settings": {"stability": 0.6, "similarity_boost": 0.75, "style": 0.3, "speed": 0.9}
+    },
+    "narrator": {
+      "name": "Narrator",
+      "look": "",
+      "voice_id": "XrExE9yKIg1WjnnlVkGX",
+      "voice_settings": {"stability": 0.55, "similarity_boost": 0.75, "style": 0.35, "speed": 0.9}
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "sh002",
+  "format": "short",
+  "topic": "Colors of the rainbow",
+  "lesson": "Color red",
+  "title": "Find Something RED! ❤️ Learn Colors with Luna #shorts",
+  "description": "Luna the bunny is painting! Can you find something red? A tiny Sunny Hollow learning story about colors for toddlers.\n\n#shorts #colorsforkids #learncolors #toddlerlearning",
+  "tags": ["shorts", "learn colors", "color red", "colors for toddlers", "Sunny Hollow"],
+  "scenes": [
+    {
+      "characters": ["luna"],
+      "image_prompt": "Luna the lavender bunny standing at a small easel with a paintbrush, a pot of bright red paint next to her",
+      "animate": true,
+      "motion_prompt": "the bunny dips her brush in red paint and smiles",
+      "lines": [{"who": "luna", "text": "So pretty! This color is red!"}],
+      "big_text": "RED", "big_text_color": "#E53935"
+    },
+    {
+      "characters": ["luna"],
+      "image_prompt": "Luna the lavender bunny pointing at a shiny red apple on a branch",
+      "lines": [{"who": "luna", "text": "A red apple!"}, {"who": "narrator", "text": "Red!"}],
+      "big_text": "RED", "big_text_color": "#E53935"
+    },
+    {
+      "characters": ["luna", "pip"],
+      "image_prompt": "Luna the bunny pointing at Pip the chick's little red sneakers, Pip proudly showing them",
+      "lines": [{"who": "pip", "text": "My shoes are red too!"}, {"who": "narrator", "text": "Red!"}],
+      "big_text": "RED", "big_text_color": "#E53935"
+    },
+    {
+      "characters": ["luna"],
+      "image_prompt": "Luna the bunny smiling at the viewer next to a red flower, inviting gesture",
+      "lines": [{"who": "narrator", "text": "Can you find something red near you?"}, {"who": "luna", "text": "Red is so pretty!"}],
+      "big_text": "RED", "big_text_color": "#E53935"
+    }
+  ]
+}

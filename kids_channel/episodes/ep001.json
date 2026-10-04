@@ -1,0 +1,143 @@
+{
+  "id": "ep001",
+  "format": "long",
+  "topic": "Counting 1 to 5 (apples)",
+  "lesson": "Counting 1 to 5",
+  "title": "Counting to 5 with Apples! | Bo & Pip | Sunny Hollow Stories for Kids",
+  "description": "Bo the little elephant wants to bake an apple pie for Grandpa Hoot, but how many apples does he need? Count from 1 to 5 with Bo, Pip and Luna in Sunny Hollow!\n\nWhat your child learns:\n• Counting 1, 2, 3, 4, 5\n• Matching numbers to objects\n• Helping friends\n\nSunny Hollow is a cozy valley of short learning stories for toddlers and preschoolers (ages 2–6). New stories every week!\n\n#countingforkids #learntocount #toddlerlearning #preschool #kidsstories",
+  "tags": ["counting for kids", "count to 5", "numbers for toddlers", "learn to count", "preschool learning", "kids stories", "toddler learning video", "educational cartoon", "Sunny Hollow"],
+  "thumbnail_prompt": "Bo the baby elephant and Pip the chick, excited and smiling, holding a basket full of shiny red apples under a big apple tree, close-up, bright and colorful",
+  "thumbnail_characters": ["bo", "pip"],
+  "thumbnail_text": "1 2 3 4 5",
+  "scenes": [
+    {
+      "characters": ["bo"],
+      "image_prompt": "Bo the baby elephant stands in a cozy treehouse kitchen holding a big wooden mixing bowl, looking puzzled with a finger on his trunk",
+      "animate": true,
+      "motion_prompt": "the elephant tilts his head and blinks, curious",
+      "lines": [
+        {"who": "narrator", "text": "Good morning, Sunny Hollow!"},
+        {"who": "bo", "text": "Ooh, I wonder... Today I want to bake an apple pie for Grandpa Hoot!"}
+      ]
+    },
+    {
+      "characters": ["bo"],
+      "image_prompt": "close-up of an open recipe book on a wooden table with a drawing of five red apples, Bo the baby elephant peeking at it",
+      "lines": [
+        {"who": "bo", "text": "The recipe says... five apples."},
+        {"who": "bo", "text": "But how many is five?"}
+      ],
+      "big_text": "5"
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "Pip the tiny yellow chick runs happily into the treehouse kitchen towards Bo the baby elephant",
+      "animate": true,
+      "motion_prompt": "the little chick hops excitedly and waves its wings",
+      "lines": [
+        {"who": "pip", "text": "Hi Bo! Did somebody say count?"},
+        {"who": "pip", "text": "Let's count! Counting is my favorite!"}
+      ]
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "Bo the baby elephant and Pip the chick walking together on a sunny path towards a big apple tree full of red apples",
+      "lines": [
+        {"who": "narrator", "text": "So Bo and Pip went to the big apple tree."}
+      ]
+    },
+    {
+      "characters": ["bo"],
+      "image_prompt": "Bo the baby elephant happily holding up just one red apple with his trunk, under the apple tree",
+      "lines": [
+        {"who": "bo", "text": "I found an apple! Is this five?"},
+        {"who": "narrator", "text": "Hmm. That's just one apple. One!"}
+      ],
+      "big_text": "1"
+    },
+    {
+      "characters": ["hoot"],
+      "image_prompt": "Grandpa Hoot the old owl sitting on a branch of the apple tree, smiling kindly, raising one wing like a teacher",
+      "animate": true,
+      "motion_prompt": "the old owl smiles, blinks slowly and lifts one wing",
+      "lines": [
+        {"who": "hoot", "text": "Let's think about it together."},
+        {"who": "hoot", "text": "We count one apple at a time. Ready?"}
+      ]
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "one shiny red apple placed in a woven basket on the grass, Bo and Pip looking at it",
+      "lines": [
+        {"who": "pip", "text": "One!"},
+        {"who": "narrator", "text": "Can you say it with me? One!"}
+      ],
+      "big_text": "1"
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "two shiny red apples in a woven basket on the grass, Bo and Pip smiling",
+      "lines": [
+        {"who": "pip", "text": "Two!"},
+        {"who": "narrator", "text": "One, two!"}
+      ],
+      "big_text": "2"
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "three shiny red apples in a woven basket on the grass, Bo gently dropping in an apple with his trunk",
+      "lines": [
+        {"who": "bo", "text": "Three!"},
+        {"who": "narrator", "text": "One, two, three!"}
+      ],
+      "big_text": "3"
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "four shiny red apples in a woven basket on the grass, Pip the chick hopping happily next to it",
+      "lines": [
+        {"who": "pip", "text": "Four!"},
+        {"who": "narrator", "text": "One, two, three, four!"}
+      ],
+      "big_text": "4"
+    },
+    {
+      "characters": ["bo", "pip", "hoot"],
+      "image_prompt": "exactly five shiny red apples in a full woven basket, Bo, Pip and Grandpa Hoot cheering together",
+      "animate": true,
+      "motion_prompt": "the friends cheer happily, the chick jumps, the elephant raises his trunk",
+      "lines": [
+        {"who": "bo", "text": "Five! Five apples!"},
+        {"who": "narrator", "text": "Let's count them all together. One, two, three, four, five!"}
+      ],
+      "big_text": "5"
+    },
+    {
+      "characters": ["bo", "pip", "luna"],
+      "image_prompt": "Luna the lavender bunny arrives holding a pie dish, smiling at Bo and Pip with the basket of five apples",
+      "lines": [
+        {"who": "luna", "text": "So pretty! Can I help bake the pie?"},
+        {"who": "bo", "text": "Yes! Friends make everything better."}
+      ]
+    },
+    {
+      "characters": ["bo", "pip", "luna", "hoot"],
+      "image_prompt": "the four friends sitting around a wooden table in the treehouse with a golden apple pie, Grandpa Hoot looking delighted",
+      "animate": true,
+      "motion_prompt": "warm steam rises from the pie, the friends smile and sway happily",
+      "lines": [
+        {"who": "hoot", "text": "What a wonderful pie! How many apples did you use?"},
+        {"who": "bo", "text": "Five! One, two, three, four, five!"}
+      ],
+      "big_text": "1 2 3 4 5"
+    },
+    {
+      "characters": ["bo", "pip"],
+      "image_prompt": "Bo the baby elephant and Pip the chick waving goodbye at the viewer in front of the red-roofed treehouse at sunset",
+      "lines": [
+        {"who": "narrator", "text": "Today we learned to count to five. Great job!"},
+        {"who": "bo", "text": "See you next time in Sunny Hollow!"}
+      ]
+    }
+  ]
+}

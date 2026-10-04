@@ -1,0 +1,43 @@
+{
+  "id": "sh001",
+  "format": "short",
+  "topic": "Counting 1 to 5 (apples)",
+  "lesson": "Counting 1 to 3",
+  "title": "How Many Apples? 🍎 Count with Pip! #shorts",
+  "description": "Count the apples with Pip the little chick! One, two, three! A tiny Sunny Hollow learning story for toddlers.\n\n#shorts #countingforkids #toddlerlearning #preschool",
+  "tags": ["shorts", "counting for kids", "toddler learning", "count to 3", "Sunny Hollow"],
+  "scenes": [
+    {
+      "characters": ["pip"],
+      "image_prompt": "Pip the tiny yellow chick looking up in surprise at a big apple tree full of red apples, low angle",
+      "animate": true,
+      "motion_prompt": "the chick looks up in amazement and flaps its little wings",
+      "lines": [{"who": "pip", "text": "Whoa! Apples! Let's count!"}]
+    },
+    {
+      "characters": ["pip"],
+      "image_prompt": "one red apple on the grass in front of Pip the chick",
+      "lines": [{"who": "pip", "text": "One!"}, {"who": "narrator", "text": "One apple!"}],
+      "big_text": "1"
+    },
+    {
+      "characters": ["pip"],
+      "image_prompt": "two red apples on the grass in front of Pip the chick, who is smiling",
+      "lines": [{"who": "pip", "text": "Two!"}, {"who": "narrator", "text": "One, two!"}],
+      "big_text": "2"
+    },
+    {
+      "characters": ["pip"],
+      "image_prompt": "three red apples on the grass, Pip the chick hugging them happily",
+      "lines": [{"who": "pip", "text": "Three!"}, {"who": "narrator", "text": "One, two, three! Can you count with me?"}],
+      "big_text": "3"
+    },
+    {
+      "characters": ["pip", "bo"],
+      "image_prompt": "Bo the baby elephant gives Pip the chick a high five next to three red apples",
+      "animate": true,
+      "motion_prompt": "the elephant and the chick do a happy high five",
+      "lines": [{"who": "bo", "text": "Three apples! Great counting, Pip!"}]
+    }
+  ]
+}
