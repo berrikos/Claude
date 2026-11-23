@@ -7,8 +7,9 @@ enquiry form, privacy and terms.
 - Static HTML built by a ~200-line Node script — no framework, no client-side
   library. Mobile Lighthouse: 98–100 on performance, accessibility, best
   practices and SEO.
-- Hosted on **Cloudflare Pages**. The only server code is the enquiry form
-  (`functions/api/enquiry.js`).
+- Served by the Cloudflare Worker **`food-online`** (routes `food-online.org/*`
+  and `www.food-online.org/*`). The Worker bundles the built pages
+  (`src/worker/worker.js`) and runs the enquiry form (`functions/api/enquiry.js`).
 - Fonts (Fraunces, Jost) are self-hosted in `src/static/fonts/`.
 
 ## Day-to-day
@@ -17,7 +18,7 @@ enquiry form, privacy and terms.
 npm install          # once
 npm run build        # → dist/
 npm run dev          # build + local server with the form working, http://localhost:8788
-npm run deploy       # build + deploy to Cloudflare Pages (needs CLOUDFLARE_API_TOKEN)
+npm run deploy       # build + deploy the Worker (needs CLOUDFLARE_API_TOKEN)
 ```
 
 ## How to update content
@@ -32,7 +33,7 @@ npm run deploy       # build + deploy to Cloudflare Pages (needs CLOUDFLARE_API_
 | Header, footer, page `<head>` | `src/layout.mjs` |
 | Logo, favicon, share image | logo SVG in `src/layout.mjs` (`LOGO_MARK`), then `npm run icons` |
 
-Then `npm run deploy` (or push, if the Pages project is connected to Git).
+Then `npm run deploy`.
 
 ## Photos and videos
 
@@ -65,24 +66,32 @@ and which are done — it is regenerated on each build.
 
 ## Hosting, domain and analytics
 
-First-time setup (safe to re-run):
+`npm run deploy` (`scripts/deploy.mjs`) talks to the Cloudflare API directly, so
+the one API token is all it needs:
 
-```bash
-CLOUDFLARE_API_TOKEN=… node scripts/cloudflare-setup.mjs
-```
+- bundles `dist/` into the Worker `food-online` and uploads it (bindings: KV
+  `ENQUIRIES`; secrets set in the dashboard are kept across deploys);
+- uploads photos and videos (`dist/img`, `dist/video`) to the R2 bucket
+  `food-online-media`, which the Worker serves with range support for video;
+- makes sure the routes `food-online.org/*` and `www.food-online.org/*` exist
+  and both hostnames have a proxied DNS record. www answers with a 301 to the apex.
 
-It creates the Pages project, deploys, attaches `food-online.org` and
-`www.food-online.org`, creates the DNS records, adds a 301 from www to the
-apex and turns on Always Use HTTPS. The domain must be a zone in the same
-Cloudflare account (Websites → Add a site, then point the registrar's
-nameservers at Cloudflare).
+Token permissions: Account › Workers Scripts Edit, Workers KV Storage Edit,
+Workers R2 Storage Edit; Zone (food-online.org) › Workers Routes Edit, DNS Edit.
 
-**Analytics:** Cloudflare → Workers & Pages → food-online → Metrics → enable
-Web Analytics (cookie-free). Or set `CF_ANALYTICS_TOKEN` to a Web Analytics
-site token and rebuild.
+Other things on the food-online.org zone (iCloud mail records, the tunnel
+subdomains, the `food-online.org/masala-mex*` route) are not touched — the more
+specific masala-mex route keeps winning for its paths.
+
+**Analytics:** Cloudflare → Analytics & Logs → Web Analytics → add
+food-online.org, then set `CF_ANALYTICS_TOKEN` to the site token and deploy.
+
+**Email for enquiries:** in Cloudflare → Workers → food-online → Settings →
+Variables, add the secret `RESEND_API_KEY`, then deploy with `ENQUIRY_TO=you@…`
+set (or add it as a variable there too).
 
 Security headers (CSP, HSTS, etc.) and caching are generated into `dist/_headers`
-by `build.mjs`.
+by `build.mjs` and applied by the Worker.
 
 ## Brand rules for anyone editing copy
 

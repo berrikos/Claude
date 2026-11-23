@@ -2,13 +2,13 @@
   "name": "food-online-website",
   "private": true,
   "type": "module",
-  "description": "Marketing website for food-online.org (static, Cloudflare Pages + one Pages Function).",
+  "description": "Marketing website for food-online.org (static site served by a Cloudflare Worker).",
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs && wrangler pages dev dist --kv ENQUIRIES",
     "icons": "node scripts/make-icons.mjs",
     "check": "node scripts/check.mjs",
-    "deploy": "node build.mjs && wrangler pages deploy dist --project-name food-online --branch main"
+    "deploy": "node build.mjs && node scripts/deploy.mjs"
   },
   "optionalDependencies": {
     "sharp": "^0.34.0"
@@ -16,5 +16,7 @@
   "devDependencies": {
     "wrangler": "^4.0.0"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }
