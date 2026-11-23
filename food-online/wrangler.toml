@@ -1,0 +1,14 @@
+# Cloudflare Pages project for food-online.org
+name = "food-online"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-11-01"
+
+[vars]
+# Where enquiry emails are sent once confirmed (comma-separated for several).
+ENQUIRY_TO = ""
+ENQUIRY_FROM = "Food Online <enquiries@food-online.org>"
+
+# KV namespace "food-online-enquiries" (created in the Cloudflare account).
+[[kv_namespaces]]
+binding = "ENQUIRIES"
+id = "7a5d073bb5384568bdcdef94380ec8ea"
