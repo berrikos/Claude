@@ -1,4 +1,5 @@
-import { page, photo, enquire, ctaBand, steps, pageHero, icon } from '../layout.mjs';
+import { page, photo, photoOr, enquire, ctaBand, steps, pageHero, icon } from '../layout.mjs';
+import { phone, deliveryMenu } from '../ui-mocks.mjs';
 
 const categories = [
   ['vk-cat-melts', 'Grilled sandwiches & melts', 'A golden grilled melt, cut to show the cheese pull', 'pan'],
@@ -32,7 +33,7 @@ ${pageHero({
       <p class="eyebrow">Why it works</p>
       <h2>Same kitchen, same staff, more turnover.</h2>
     </div>
-    <div class="grid-3 feature-grid">
+    <div class="grid-3">
       <article class="feature reveal">${icon('chart', 'ic feature-ic')}<h3>More turnover</h3><p>Your kitchen sells several extra brands, using hours and staff you already pay for.</p></article>
       <article class="feature reveal" style="--d:1">${icon('tag', 'ic feature-ic')}<h3>Higher profit</h3><p>No new rent, fit-out or hires — extra sales on costs you already carry.</p></article>
       <article class="feature reveal" style="--d:2">${icon('wave', 'ic feature-ic')}<h3>We take the headache</h3><p>We run the Uber Eats and DoorDash back end — menus, item and ingredient photos, options, promotions and every change.</p></article>
@@ -40,7 +41,7 @@ ${pageHero({
   </div>
 </section>
 
-<section class="section section-dark">
+<section class="section dark">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow eyebrow-gold">One kitchen. Multiple brands.</p>
@@ -53,7 +54,7 @@ ${pageHero({
   </div>
 </section>
 
-<section class="section section-cream">
+<section class="section section-alt">
   <div class="wrap split">
     <div class="split-copy">
       <div class="section-head reveal left">
@@ -67,9 +68,9 @@ ${pageHero({
         <li>${icon('check')}Options set up to lift the order value</li>
       </ul>
     </div>
-    <div class="phones reveal" aria-label="Example delivery-app menu screens">
-      <div class="phone">${photo('vk-app-menu', { alt: 'Delivery-app menu screen showing a brand’s items with photos', note: 'screenshot — delivery app menu', ratio: '9/19.5', icon: 'phone', tone: 'cream', sizes: '220px' })}</div>
-      <div class="phone phone-2">${photo('vk-app-options', { alt: 'Delivery-app item screen showing photographed ingredients and add-ons', note: 'screenshot — item with photographed options', ratio: '9/19.5', icon: 'phone', tone: 'warm', sizes: '220px' })}</div>
+    <div class="phones reveal" role="img" aria-label="Example delivery-app screens: an item with every extra photographed">
+      ${photoOr('vk-app-menu', phone(deliveryMenu()), { alt: 'Delivery-app menu screen', note: 'screenshot — delivery app menu', ratio: '9/19.5' })}
+      ${photoOr('vk-app-options', phone(deliveryMenu()), { alt: 'Delivery-app item with photographed options', note: 'screenshot — item with photographed options', ratio: '9/19.5' })}
     </div>
   </div>
 </section>
@@ -90,7 +91,7 @@ ${pageHero({
   </div>
 </section>
 
-<section class="section section-cream">
+<section class="section section-alt">
   <div class="wrap fee">
     <div class="section-head reveal left">
       <p class="eyebrow">One simple fee</p>

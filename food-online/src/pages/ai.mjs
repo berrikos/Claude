@@ -1,12 +1,5 @@
 import { page, enquire, ctaBand, pageHero, steps, icon } from '../layout.mjs';
-
-const feed = [
-  ['6:00am', 'report', 'Sent yesterday’s sales summary'],
-  ['7:12am', 'mail', 'Replied to 9 customer emails'],
-  ['7:30am', 'cart', 'Reordered milk and bread'],
-  ['9:05am', 'calendar', 'Moved Thursday’s meeting and told the team'],
-  ['11:40am', 'star', 'Answered 4 new Google reviews'],
-];
+import { phone, chatPhone } from '../ui-mocks.mjs';
 
 const jobs = [
   ['mail', 'Email', 'An hour a day in the inbox.', 'Urgent mail flagged, replies drafted for your OK.'],
@@ -18,13 +11,7 @@ const jobs = [
 ];
 
 export default function ai() {
-  const feedHtml = `<div class="wa" role="img" aria-label="Example: a day of jobs done by the assistant, reported in a chat">
-    <div class="wa-head"><span class="wa-av">${icon('spark')}</span><div><strong>Your assistant</strong><small>Example · done for you today</small></div></div>
-    <ol class="wa-feed">
-      ${feed.map(([t, ic, msg], i) => `<li class="wa-msg" style="--d:${i}">${icon(ic)}<span>${msg}</span><time>${t}</time></li>`).join('')}
-    </ol>
-    <p class="wa-you">Thanks — all good 👍</p>
-  </div>`;
+  const feedHtml = `<div class="ai-phone" role="img" aria-label="Example: the assistant reporting a morning of finished jobs on WhatsApp">${phone(chatPhone())}</div>`;
 
   const body = `
 ${pageHero({
@@ -33,7 +20,7 @@ ${pageHero({
   sub: 'Most AI only chats. Ours acts: it reads your email, places orders, books meetings and reports back. You just message it on WhatsApp, like a staff member.',
   actions: `${enquire('ai', 'Get your own assistant')}<a class="btn btn-ghost" href="#jobs">What it does</a>`,
   media: feedHtml,
-  cls: 'hero-ai',
+  cls: 'dark',
 })}
 
 <section class="section" id="jobs">
@@ -52,7 +39,7 @@ ${pageHero({
   </div>
 </section>
 
-<section class="section section-cream">
+<section class="section section-alt">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">How we set it up</p>

@@ -7,14 +7,11 @@ Drop a file named after the slot into `media/photos/` (any of .jpg .jpeg .png
 optional .jpg poster with the same name), then rebuild and deploy. Nothing else
 needs changing.
 
-## Photos (0/25 supplied)
+## Photos (0/21 supplied)
 
 | Slot | What to shoot | Status |
 |---|---|---|
-| `home-outcome-orders` | Burgers being packed for delivery orders | ⏳ placeholder |
-| `home-outcome-sell` | A grilled melt served at a café counter | ⏳ placeholder |
-| `home-outcome-service` | A kitchen screen showing every order in one place | ⏳ placeholder |
-| `home-outcome-admin` | An owner reading a morning sales summary on their phone | ⏳ placeholder |
+| `home-outcome-sell` | grilled melt on the counter, landscape | ⏳ placeholder |
 | `home-why` | chef at the pass during service | ⏳ placeholder |
 | `vk-hero` | delivery bags lined up on the pass | ⏳ placeholder |
 | `vk-cat-melts` | A golden grilled melt, cut to show the cheese pull | ⏳ placeholder |
@@ -22,26 +19,25 @@ needs changing.
 | `vk-cat-kebabs` | A loaded kebab wrap, cut in half | ⏳ placeholder |
 | `vk-cat-breakfast` | A breakfast plate with eggs and toast | ⏳ placeholder |
 | `vk-cat-desserts` | A dessert box ready for delivery | ⏳ placeholder |
-| `vk-app-menu` | screenshot — delivery app menu | ⏳ placeholder |
-| `vk-app-options` | screenshot — item with photographed options | ⏳ placeholder |
+| `vk-app-menu` | screenshot — delivery app menu (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `vk-app-options` | screenshot — item with photographed options (optional — a drawn screen shows until supplied) | ⏳ placeholder |
 | `vx-hero` | hot food counter with grilled items | ⏳ placeholder |
 | `vx-step-supply` | Frozen, ready-made products packed in a freezer | ⏳ placeholder |
 | `vx-step-assemble` | A team member assembling an item using a step card | ⏳ placeholder |
 | `vx-step-cook` | An item on a contact grill | ⏳ placeholder |
 | `vx-step-serve` | A finished item served on the counter | ⏳ placeholder |
-| `pos-hero` | Servatto till + kitchen screen on the counter | ⏳ placeholder |
-| `pos-part-till` | Servatto screenshot — till | ⏳ placeholder |
-| `pos-part-kitchen` | Servatto screenshot — kitchen screen | ⏳ placeholder |
-| `pos-part-kiosk` | Servatto screenshot — self-order kiosk | ⏳ placeholder |
-| `pos-part-tv` | Servatto screenshot — order screen (tv) | ⏳ placeholder |
-| `pos-part-office` | Servatto screenshot — back office | ⏳ placeholder |
-| `pos-part-app` | Servatto screenshot — owner’s phone app | ⏳ placeholder |
+| `pos-part-till` | Servatto till photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-kitchen` | Servatto kitchen screen photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-kiosk` | Servatto self-order kiosk photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-tv` | Servatto order screen (tv) photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-office` | Servatto back office photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-app` | Servatto owner’s phone app photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
 
 ## Videos (0/5 supplied)
 
 | Slot | What | Status |
 |---|---|---|
-| `home-hero` | busy café/kitchen loop, landscape | ⏳ placeholder |
+| `home-hero` | busy café/kitchen loop, landscape, 10–15s | ⏳ placeholder |
 | `promo-virtual-kitchens` | Virtual Kitchens, vertical ~60s | ⏳ placeholder |
 | `promo-express` | Food Online Express, vertical ~60s | ⏳ placeholder |
 | `promo-point-of-sale` | All-in-one point of sale, vertical ~60s | ⏳ placeholder |

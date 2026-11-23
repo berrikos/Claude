@@ -43,7 +43,7 @@ ${pageHero({
   </div>
 </section>
 
-<section class="section section-cream" id="how">
+<section class="section section-alt" id="how">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">How it works</p>
@@ -64,7 +64,7 @@ ${pageHero({
       <p class="eyebrow">Benefits</p>
       <h2>More to sell, without the hard part.</h2>
     </div>
-    <div class="grid-4 feature-grid">
+    <div class="grid-4">
       ${benefits.map(([ic, t, d], i) => `<article class="feature reveal" style="--d:${i}">${icon(ic, 'ic feature-ic')}<h3>${t}</h3><p>${d}</p></article>`).join('')}
     </div>
     <p class="note-line reveal">${icon('tag')} Pricing on request — tailored to your store.</p>

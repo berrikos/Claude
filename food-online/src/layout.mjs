@@ -87,6 +87,13 @@ export function video(slot, { label, note = label, ratio = '9/16', cls = '', pos
   return `<div class="media ph ph-video ${cls}" ${style} role="img" aria-label="${esc(label)}" data-slot="${esc(slot)}">${icon(posterIcon, 'ph-ic')}<span class="ph-note">Video coming soon · ${esc(note)}</span></div>`;
 }
 
+// A photo slot that shows a built-in product screen until a real photo is supplied.
+export function photoOr(slot, fallback, opts = {}) {
+  if (media.photos[slot]) return photo(slot, opts);
+  usedSlots.photos.set(slot, `${opts.note || opts.alt} (optional — a drawn screen shows until supplied)`);
+  return fallback;
+}
+
 export const enquire = (interest, label = 'Enquire now', cls = 'btn btn-primary') =>
   `<a class="${cls}" href="/contact/${interest ? `?interest=${interest}` : ''}#enquiry">${esc(label)}${icon('arrow', 'ic btn-ic')}</a>`;
 
@@ -180,7 +187,6 @@ export function page({ path, title, description, body, schema = [], bodyClass = 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>document.documentElement.classList.add('js');setTimeout(function(){var d=document.documentElement;if(!d.classList.contains('js-ready'))d.classList.remove('js')},3000)</script>
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${url}">
