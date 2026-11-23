@@ -138,3 +138,21 @@ export const TOUR = [
   { key: 'board', title: 'Order screen', text: 'Customers see when their order is ready. Between rushes it doubles as a menu board.', dev: () => tv(boardScreen()) },
   { key: 'dash', title: 'Owner’s dashboard', text: 'Sales, orders and staff for every location, live on your phone.', dev: () => phone(dashScreen()) },
 ];
+
+// Express: the step-by-step card a team member follows on the counter tablet.
+export const stepCard = () => `<div class="scr scr-steps">
+  <div class="steps-head"><div><small>Food Online Express · Step card</small><b>Chicken melt</b></div><span class="steps-timer">${icon('clock')}3:00</span></div>
+  <ol class="steps-list">
+    ${[['box', 'Take from freezer', 'One portion pack'], ['layers', 'Assemble', 'Bread, filling, two cheese slices'], ['pan', 'Grill', 'Press grill · 3 minutes'], ['check', 'Serve', 'Cut on the diagonal, into the box']].map(([ic, t, d], i) => `<li class="${i === 2 ? 'is-now' : i < 2 ? 'is-done' : ''}"><span class="sn">${i < 2 ? icon('check') : i + 1}</span><span class="st"><b>${t}</b><small>${d}</small></span>${icon(ic)}</li>`).join('')}
+  </ol>
+  <span class="steps-cta">Next step</span>
+</div>`;
+
+// Virtual Kitchens: one kitchen, several stores in the delivery app.
+export const deliveryStore = () => `<div class="scr scr-store">
+  <div class="store-head"><b>Delivery</b><span class="store-search">${icon('pin')}Near you</span></div>
+  <p class="store-h">All cooked in one kitchen</p>
+  <ul class="store-list">
+    ${[['pan', 'Melts & toasties', 'ph-warm'], ['burger', 'Burgers', 'ph-gold'], ['kitchen', 'Kebabs & wraps', 'ph-dark'], ['cup', 'Breakfast', 'ph-cream']].map(([ic, t, tone]) => `<li><span class="store-img ${tone}">${icon(ic)}</span><span><b>${t}</b><small>15–25 min · Open now</small></span></li>`).join('')}
+  </ul>
+</div>`;

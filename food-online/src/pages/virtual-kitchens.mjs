@@ -1,5 +1,5 @@
 import { page, photo, photoOr, enquire, ctaBand, steps, pageHero, icon } from '../layout.mjs';
-import { phone, deliveryMenu } from '../ui-mocks.mjs';
+import { phone, deliveryMenu, deliveryStore } from '../ui-mocks.mjs';
 
 const categories = [
   ['vk-cat-melts', 'Grilled sandwiches & melts', 'A golden grilled melt, cut to show the cheese pull', 'pan'],
@@ -24,7 +24,7 @@ ${pageHero({
   title: 'Your kitchen. Our brands. More profit.',
   sub: 'Cook our proven delivery brands with the kitchen and staff you already have. We run the Uber Eats and DoorDash stores for you.',
   actions: `${enquire('virtual-kitchens', 'Find out what your kitchen could earn')}<a class="btn btn-ghost" href="#how">How it works</a>`,
-  media: photo('vk-hero', { alt: 'Several delivery orders bagged and ready on a kitchen pass', note: 'delivery bags lined up on the pass', ratio: '4/5', eager: true, icon: 'burger', sizes: '(min-width: 900px) 45vw, 100vw' }),
+  media: photoOr('vk-hero', `<div class="hero-devices duo" role="img" aria-label="Example: several delivery stores, all cooked in one kitchen, in a delivery app">${phone(deliveryStore())}${phone(deliveryMenu())}<span class="float-chip fc-1">${icon('bolt')}New order · Uber Eats</span><span class="float-chip fc-2">${icon('bolt')}New order · DoorDash</span></div>`, { alt: 'Several delivery orders bagged and ready on a kitchen pass', note: 'delivery bags lined up on the pass', ratio: '4/5', eager: true, sizes: '(min-width: 900px) 45vw, 100vw' }),
 })}
 
 <section class="section">
@@ -69,7 +69,6 @@ ${pageHero({
       </ul>
     </div>
     <div class="phones reveal" role="img" aria-label="Example delivery-app screens: an item with every extra photographed">
-      ${photoOr('vk-app-menu', phone(deliveryMenu()), { alt: 'Delivery-app menu screen', note: 'screenshot — delivery app menu', ratio: '9/19.5' })}
       ${photoOr('vk-app-options', phone(deliveryMenu()), { alt: 'Delivery-app item with photographed options', note: 'screenshot — item with photographed options', ratio: '9/19.5' })}
     </div>
   </div>

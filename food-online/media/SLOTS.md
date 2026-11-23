@@ -7,31 +7,30 @@ Drop a file named after the slot into `media/photos/` (any of .jpg .jpeg .png
 optional .jpg poster with the same name), then rebuild and deploy. Nothing else
 needs changing.
 
-## Photos (0/21 supplied)
+## Photos (0/20 supplied)
 
 | Slot | What to shoot | Status |
 |---|---|---|
-| `home-outcome-sell` | grilled melt on the counter, landscape | ⏳ placeholder |
-| `home-why` | chef at the pass during service | ⏳ placeholder |
-| `vk-hero` | delivery bags lined up on the pass | ⏳ placeholder |
+| `home-outcome-sell` | grilled melt on the counter, landscape (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `home-why` | chef at the pass during service (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `vk-hero` | delivery bags lined up on the pass (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
 | `vk-cat-melts` | A golden grilled melt, cut to show the cheese pull | ⏳ placeholder |
 | `vk-cat-burgers` | A stacked burger with fries | ⏳ placeholder |
 | `vk-cat-kebabs` | A loaded kebab wrap, cut in half | ⏳ placeholder |
 | `vk-cat-breakfast` | A breakfast plate with eggs and toast | ⏳ placeholder |
 | `vk-cat-desserts` | A dessert box ready for delivery | ⏳ placeholder |
-| `vk-app-menu` | screenshot — delivery app menu (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `vk-app-options` | screenshot — item with photographed options (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `vx-hero` | hot food counter with grilled items | ⏳ placeholder |
+| `vk-app-options` | screenshot — item with photographed options (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `vx-hero` | hot food counter with grilled items (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
 | `vx-step-supply` | Frozen, ready-made products packed in a freezer | ⏳ placeholder |
 | `vx-step-assemble` | A team member assembling an item using a step card | ⏳ placeholder |
 | `vx-step-cook` | An item on a contact grill | ⏳ placeholder |
 | `vx-step-serve` | A finished item served on the counter | ⏳ placeholder |
-| `pos-part-till` | Servatto till photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `pos-part-kitchen` | Servatto kitchen screen photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `pos-part-kiosk` | Servatto self-order kiosk photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `pos-part-tv` | Servatto order screen (tv) photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `pos-part-office` | Servatto back office photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
-| `pos-part-app` | Servatto owner’s phone app photo (optional — a drawn screen shows until supplied) | ⏳ placeholder |
+| `pos-part-till` | Servatto till photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `pos-part-kitchen` | Servatto kitchen screen photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `pos-part-kiosk` | Servatto self-order kiosk photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `pos-part-tv` | Servatto order screen (tv) photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `pos-part-office` | Servatto back office photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
+| `pos-part-app` | Servatto owner’s phone app photo (optional — a drawn screen or illustration shows until supplied) | ⏳ placeholder |
 
 ## Videos (0/5 supplied)
 

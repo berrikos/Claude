@@ -1,6 +1,6 @@
 import { offerings } from '../config.mjs';
-import { page, photo, video, enquire, ctaBand, steps, icon, esc } from '../layout.mjs';
-import { tablet, phone, kdsScreen, chatPhone, storefronts, TOUR } from '../ui-mocks.mjs';
+import { page, photoOr, hasPhoto, hasVideo, video, enquire, ctaBand, steps, icon, esc } from '../layout.mjs';
+import { tablet, phone, kdsScreen, chatPhone, storefronts, stepCard, TOUR } from '../ui-mocks.mjs';
 
 export const faqs = [
   ['Do I need to buy new equipment?', 'Usually not. We match brands and the Express range to the kitchen you already have.'],
@@ -34,6 +34,7 @@ export function tourSection({ eyebrow = 'Technology partner · Servatto', title 
       <h2>${title}</h2>
       <p class="lede">${sub}</p>
       ${link ? `<a class="link-arrow" href="/point-of-sale/">See the point of sale ${icon('arrow')}</a>` : ''}
+      <p class="tour-hint">${icon('arrow')}Swipe to see each part</p>
     </div>
     <div class="tour-grid">
       <ol class="tour-steps">
@@ -91,9 +92,9 @@ export default function home() {
         <div class="tile-copy"><p class="eyebrow">More orders</p><h3>Extra delivery brands from the kitchen you already run.</h3><span class="link-arrow">Virtual Kitchens ${icon('arrow')}</span></div>
         <div class="tile-vis">${storefronts()}</div>
       </a>
-      <a class="tile tile-photo b-3 reveal" href="${vx.path}">
+      <a class="tile ${hasPhoto('home-outcome-sell') ? 'tile-photo ' : ''}b-3 reveal" href="${vx.path}">
         <div class="tile-copy"><p class="eyebrow">More to sell</p><h3>A ready-made food range any team member can serve.</h3><span class="link-arrow">Food Online Express ${icon('arrow')}</span></div>
-        <div class="tile-vis">${photo('home-outcome-sell', { alt: 'A hot grilled melt served at a café counter', note: 'grilled melt on the counter, landscape', ratio: '16/9', icon: 'pan', tone: 'warm', sizes: '(min-width: 760px) 50vw, 100vw' })}</div>
+        <div class="tile-vis">${photoOr('home-outcome-sell', tablet(stepCard()), { alt: 'A hot grilled melt served at a café counter', note: 'grilled melt on the counter, landscape', ratio: '16/9', sizes: '(min-width: 760px) 50vw, 100vw' })}</div>
       </a>
       <a class="tile dark b-4 reveal" style="--d:1" href="${ai.path}">
         <div class="tile-copy"><p class="eyebrow">Less admin</p><h3>An AI assistant that clears your daily jobs.</h3><span class="link-arrow">AI Solutions ${icon('arrow')}</span></div>
@@ -103,7 +104,7 @@ export default function home() {
   </div>
 </section>
 
-<section class="section dark">
+<section class="section dark partners-sec">
   <div class="wrap">
     <div class="section-head left reveal">
       <p class="eyebrow">Four ways to partner</p>
@@ -121,7 +122,7 @@ export default function home() {
 
 ${tourSection()}
 
-<section class="section section-alt">
+${videos.some(([slot]) => hasVideo(slot)) ? `<section class="section section-alt">
   <div class="wrap">
     <div class="section-head reveal">
       <p class="eyebrow">See it working</p>
@@ -135,7 +136,7 @@ ${tourSection()}
       </figure>`).join('')}
     </div>
   </div>
-</section>
+</section>` : videos.map(([slot, title]) => video(slot, { label: title, note: `${title}, vertical ~60s` })).slice(0, 0).join('')}
 
 <section class="section">
   <div class="wrap">
@@ -152,8 +153,8 @@ ${tourSection()}
 </section>
 
 <section class="section section-alt">
-  <div class="wrap split">
-    <div class="split-media sticky reveal">${photo('home-why', { alt: 'A chef working the pass in a busy kitchen', note: 'chef at the pass during service', ratio: '4/5', icon: 'kitchen', sizes: '(min-width: 900px) 45vw, 100vw' })}</div>
+  <div class="wrap ${hasPhoto('home-why') ? 'split' : 'why-wide'}">
+    ${photoOr('home-why', '', { alt: 'A chef working the pass in a busy kitchen', note: 'chef at the pass during service', ratio: '4/5', sizes: '(min-width: 900px) 45vw, 100vw' }).replace(/^(<(picture|div)[\s\S]+)$/, '<div class="split-media sticky reveal">$1</div>')}
     <div>
       <div class="section-head left reveal"><p class="eyebrow">Why Food Online</p><h2>Practical help from people who cook.</h2></div>
       <ul class="why-list">

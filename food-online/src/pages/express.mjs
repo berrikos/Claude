@@ -1,4 +1,5 @@
-import { page, photo, enquire, ctaBand, pageHero, icon } from '../layout.mjs';
+import { page, photo, photoOr, enquire, ctaBand, pageHero, icon } from '../layout.mjs';
+import { tablet, stepCard } from '../ui-mocks.mjs';
 
 const who = [
   ['cup', 'Cafés'],
@@ -28,7 +29,7 @@ ${pageHero({
   title: 'A ready-made food counter in any kitchen.',
   sub: 'We supply the food frozen and ready-made. Your team assembles, cooks and serves.',
   actions: `${enquire('express', 'Put Express in your store')}<a class="btn btn-ghost" href="#how">How it works</a>`,
-  media: photo('vx-hero', { alt: 'A hot grilled item served at a convenience-store food counter', note: 'hot food counter with grilled items', ratio: '4/5', eager: true, icon: 'pan', sizes: '(min-width: 900px) 45vw, 100vw' }),
+  media: photoOr('vx-hero', `<div class="hero-devices solo" role="img" aria-label="Example: a step-by-step card on the counter tablet for a grilled chicken melt">${tablet(stepCard())}<span class="float-chip fc-2">${icon('clock')}Ready in 3 minutes</span></div>`, { alt: 'A hot grilled item served at a convenience-store food counter', note: 'hot food counter with grilled items', ratio: '4/5', eager: true, sizes: '(min-width: 900px) 45vw, 100vw' }),
 })}
 
 <section class="section">

@@ -8,6 +8,7 @@ import { site, offerings } from './config.mjs';
 let media = { photos: {}, videos: {} };
 export const usedSlots = { photos: new Map(), videos: new Map() };
 export function setMedia(m) { media = m; }
+export const hasVideo = (slot) => Boolean(media.videos[slot]);
 
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -26,7 +27,7 @@ const ICONS = {
   chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
   box: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
   snow: '<path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2"/>',
-  pan: '<circle cx="10" cy="13" r="6.5"/><path d="M16 11.5h6"/>',
+  pan: '<path d="M3 10.5C3 7 7 5 12 5s9 2 9 5.5V12H3z"/><path d="M3 15h18"/><path d="M4 18.5h16"/><path d="M7 12c.8 1.3 1.6 1.3 2.4 0s1.6-1.3 2.4 0 1.6 1.3 2.4 0 1.6-1.3 2.4 0"/>',
   chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
   store: '<path d="M3 9 5 4h14l2 5"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v8h14v-8M10 20v-5h4v5"/>',
@@ -70,7 +71,7 @@ export function photo(slot, { alt, note = alt, ratio = '4/3', sizes = '(min-widt
       + p.formats.filter((f) => f !== 'jpg').map((f) => `<source type="image/${f}" srcset="${srcset(f)}" sizes="${sizes}">`).join('')
       + `<img src="/img/${slot}-${fallbackW}.jpg" srcset="${srcset('jpg')}" sizes="${sizes}" width="${p.width}" height="${p.height}" alt="${esc(alt)}" ${load} decoding="async"></picture>`;
   }
-  return `<div class="media ph ph-${tone} ${cls}" ${style} role="img" aria-label="${esc(alt)}" data-slot="${esc(slot)}">${icon(ic, 'ph-ic')}<span class="ph-note">Photo coming soon · ${esc(note)}</span></div>`;
+  return `<div class="media ph ph-${tone} ${cls}" ${style} role="img" aria-label="${esc(alt)}" data-slot="${esc(slot)}"><span class="ph-badge">${icon(ic, 'ph-ic')}</span></div>`;
 }
 
 // Video slot. Drop media/videos/<slot>.mp4 (and optionally <slot>.jpg as the
@@ -84,15 +85,16 @@ export function video(slot, { label, note = label, ratio = '9/16', cls = '', pos
     const poster = v.poster ? `poster="/video/${slot}.jpg"` : '';
     return `<video class="media lazy-video ${cls}" ${style} muted playsinline loop preload="none" ${poster} data-src="/video/${slot}.mp4" aria-label="${esc(label)}"></video>`;
   }
-  return `<div class="media ph ph-video ${cls}" ${style} role="img" aria-label="${esc(label)}" data-slot="${esc(slot)}">${icon(posterIcon, 'ph-ic')}<span class="ph-note">Video coming soon · ${esc(note)}</span></div>`;
+  return `<div class="media ph ph-video ${cls}" ${style} role="img" aria-label="${esc(label)}" data-slot="${esc(slot)}"><span class="ph-badge">${icon(posterIcon, 'ph-ic')}</span></div>`;
 }
 
 // A photo slot that shows a built-in product screen until a real photo is supplied.
 export function photoOr(slot, fallback, opts = {}) {
   if (media.photos[slot]) return photo(slot, opts);
-  usedSlots.photos.set(slot, `${opts.note || opts.alt} (optional — a drawn screen shows until supplied)`);
+  usedSlots.photos.set(slot, `${opts.note || opts.alt} (optional — a drawn screen or illustration shows until supplied)`);
   return fallback;
 }
+export const hasPhoto = (slot) => Boolean(media.photos[slot]);
 
 export const enquire = (interest, label = 'Enquire now', cls = 'btn btn-primary') =>
   `<a class="${cls}" href="/contact/${interest ? `?interest=${interest}` : ''}#enquiry">${esc(label)}${icon('arrow', 'ic btn-ic')}</a>`;
